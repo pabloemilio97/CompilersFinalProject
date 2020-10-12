@@ -6,19 +6,23 @@ import ply.yacc as yacc
 
 #pending: add string for declaration?
 reserved = {
-    'program': 'PROGRAM',
-    'function': 'FUNCTION',
-    'void': 'VOID',
-    'let': 'LET',
-    'int': 'INT',
-    'float': 'FLOAT',
-    'print': 'PRINT',
-    'if': 'IF',
-    'else': 'ELSE'
+    'program': 'PROGRAM_RESERVED',
+    'function': 'FUNCTION_RESERVED',
+    'void': 'VOID_RESERVED',
+    'let': 'LET_RESERVED',
+    'int': 'INT_RESERVED',
+    'float': 'FLOAT_RESERVED',
+    'print': 'PRINT_RESERVED',
+    'if': 'IF_RESERVED',
+    'else': 'ELSE_RESERVED',
+    'read': 'READ_RESERVED',
+    'write': 'WRITE_RESERVED',
+    'for': 'FOR_RESERVED',
+    'while': 'WHILE_RESERVED',
 }
 
 tokens = [
-    'ID', 'AND', 'OR', 'COMMENT', 'COLON', 'SEMICOLON', 'LBRACKET', 'RBRACKET', 'LCURLY', 'RCURLY', 'EQUALS', 'GREATERTHAN', 'LESSTHAN', 'LPAREN', 'RPAREN', 'DOT', 'COMMA', 'CTESTRING',
+    'ID', 'AND', 'OR', 'COMMENT', 'COLON', 'SEMICOLON', 'LBRACKET', 'RBRACKET', 'LCURLY', 'RCURLY', 'EQUALS', 'DOUBLEEQUALS', 'NOTEQUALS', 'GREATERTHAN', 'LESSTHAN', 'LPAREN', 'RPAREN', 'DOT', 'COMMA', 'CTESTRING',
     'PLUS', 'MINUS', 'MULTIPLY', 'DIVIDE', 'CTEI', 'CTEF',
 ] + list(reserved.values())
 
@@ -44,37 +48,43 @@ t_CTEI      = r'[1-9][0-9]*'
 t_CTEF      = r'[1-9][0-9]*\.[0-9]'
 t_AND       = r'\&'
 t_OR       = r'\|'
-t_COMMENT  = r'%%.*%%'
+t_ignore_COMMENT = r'%%.*%%'
+t_DOUBLEEQUALS = r'=='
+t_NOTEQUALS = r'!='
 
 def t_ID(t):
   r'[a-zA-Z_][a-zA-Z_0-9]*'
   t.type = reserved.get(t.value, 'ID')# Check for reserved words
   return t
 
-start = 'PROG'
+start = 'PROGRAM'
 
 def p_empty(p):
     'empty :'
     pass
 
-def p_PROG(p):
-    'PROG : program ID SEMICOLON VARS BODY MAIN'
+def p_PROGRAM(p):
+    'PROGRAM : program ID SEMICOLON VARS BODY MAIN'
     pass
 
 def p_BODY(p):
-    'BODY : FUNCTION BODY | empty'
+    '''BODY : FUNCTION BODY
+    | empty'''
     pass
 
 def p_VARS(p):
-    'VARS : let TYPE COLON ID_LIST SEMICOLON VARS | empty'
+    '''VARS : let TYPE COLON ID_LIST SEMICOLON VARS
+    | empty'''
     pass
 
 def p_ID_LIST(p):
-    'ID_LIST : ID ID_LIST_AUX | MULTIDIMENSIONAL ID_LIST_AUX'
+    '''ID_LIST : ID ID_LIST_AUX
+    | MULTIDIMENSIONAL ID_LIST_AUX'''
     pass
 
 def p_ID_LIST_AUX(p):
-    'ID_LIST_AUX : COMMA ID_LIST | empty'
+    '''ID_LIST_AUX : COMMA ID_LIST
+    | empty'''
     pass 
 
 def p_FUNCTION(p):
@@ -82,19 +92,23 @@ def p_FUNCTION(p):
     pass
 
 def p_FUNCTION_AUX(p):
-    'FUNCTION_AUX : TYPE | void'
+    '''FUNCTION_AUX : TYPE
+    | void'''
     pass
 
 def p_MULTIDIMENSIONAL(p):
-    'MULTIDIMENSIONAL : ID LBRACKET CTEI RBRACKET | id LBRACKET CTEI RBRACKET LBRACKET CTEI RBRACKET'
+    '''MULTIDIMENSIONAL : ID LBRACKET CTEI RBRACKET
+    | ID LBRACKET CTEI RBRACKET LBRACKET CTEI RBRACKET'''
     pass
 
 def p_PARAM(p):
-    'PARAM : TYPE ID PARAM_AUX | empty'
+    '''PARAM : TYPE ID PARAM_AUX
+    | empty'''
     pass
 
 def p_PARAM_AUX(p):
-    'PARAM_AUX : COMMA PARAM_AUX2 | empty'
+    '''PARAM_AUX : COMMA PARAM_AUX2
+    | empty'''
     pass
 
 def p_PARAM_AUX2(p):
@@ -106,108 +120,152 @@ def p_FUNCTION_BODY(p):
     pass
 
 def p_FUNCTION_BODY_AUX(p):
-    'FUNCTION_BODY_AUX : FUNCTION_RETURN | epsilon'
+    '''FUNCTION_BODY_AUX : FUNCTION_RETURN
+    | empty'''
     pass
 
-
-###From here down, we need to keep modifying
-
-def p_TYPE(p):
-    '''TYPE : INT
-    | FLOAT'''
+def p_STATEMENTS(p):
+    '''STATEMENTS : STATEMENTS_AUX
+    | empty'''
     pass
 
-def p_STATEMENT(p):
-    '''STATEMENT : ASSIGNMENT
-    | CONDICION
-    | ESCRITURA'''
+def p_STATEMENTS_AUX(p):
+    '''STATEMENTS_AUX : ASSIGNMENT STATEMENTS
+    | FUNCTION_CALL STATEMENTS
+    | READ STATEMENTS
+    | WRITE STATEMENTS
+    | IF STATEMENTS
+    | WHILE STATEMENTS
+    | FOR STATEMENTS
+    '''
     pass
 
 def p_ASSIGNMENT(p):
-    'ASSIGNMENT : ID EQUALS EXPRESSION COLON'
+    'ASSIGNMENT : VAR EQUALS EXPRESSION SEMICOLON'
+    pass
+
+def p_FUNCTION_CALL(p):
+    'FUNCTION_CALL : ID LPAREN EXPRESSION FUNCTION_CALL_AUX RPAREN SEMICOLON'
+    pass
+
+def p_FUNCTION_CALL_AUX(p):
+    '''FUNCTION_CALL_AUX : COMMA EXPRESSION FUNCTION_CALL_AUX
+    | empty'''
+    pass
+
+def p_READ(p):
+    'READ : read LPAREN VAR READ_AUX RPAREN SEMICOLON'
+    pass
+
+def p_READ_AUX(p):
+    '''READ_AUX : COMMA VAR READ_AUX
+    | empty'''
+    pass
+
+def p_WRITE(p):
+    'WRITE : write LPAREN WRITE_AUX WRITE_AUX2 RPAREN SEMICOLON'
+    pass
+
+def p_WRITE_AUX(p):
+    '''WRITE_AUX : CTESTRING
+    | EXPRESSION'''
+    pass
+
+def p_WRITE_AUX2(p):
+    '''WRITE_AUX2 : COMMA WRITE_AUX WRITE_AUX2 
+    | empty'''
+    pass
+
+def p_VAR(p):
+    '''VAR : ID
+    | ID LBRACKET EXPRESSION RBRACKET
+    | ID LBRACKET EXPRESSION RBRACKET LBRACKET EXPRESSION RBRACKET'''
+    pass
+
+def p_FUNCTION_RETURN(p):
+    'FUNCTION_RETURN : return EXPRESSION SEMICOLON'
+    pass
+
+def p_IF(p):
+    'IF : if LPAREN EXPRESSION RPAREN LCURLY STATEMENTS RCURLY else LCURLY STATEMENTS RCURLY'
+    pass
+
+def p_WHILE(p):
+    'WHILE : while LPAREN EXPRESSION RPAREN LCURLY STATEMENTS RCURLY'
+    pass
+
+def p_FOR(p):
+    'FOR : for LPAREN VAR EQUALS EXPRESSION to EXPRESSION RPAREN LCURLY STATEMENTS RCURLY'
     pass
 
 def p_EXPRESSION(p):
-    'EXPRESSION : EXP E1'
+    'EXPRESSION : AND_EXPRESSION EXPRESSION_AUX'
     pass
 
-def p_E1(p):
-    '''E1 : E2 EXP
+def p_EXPRESSION_AUX(p):
+    '''EXPRESSION_AUX : OR EXPRESSION
     | empty'''
     pass
 
-def p_E2(p):
-    '''E2 : LESSTHAN
+def p_AND_EXPRESSION(p):
+    'AND_EXPRESSION : COMPARE_EXPRESSION AND_EXPRESSION_AUX'
+    pass
+
+def p_AND_EXPRESSION_AUX(p):
+    '''AND_EXPRESSION_AUX : AND AND_EXPRESSION
+    | empty'''
+    pass
+
+def p_COMPARE_EXPRESSION(p):
+    'COMPARE_EXPRESSION : ARITHMETHIC_EXPRESSION COMPARE_EXPRESSION_AUX ARITMETHIC_EXPRESSION'
+    pass
+
+def p_COMPARE_EXPRESSION_AUX(p):
+    'COMPARE_EXPRESSION_AUX : COMPARE_EXPRESSION_AUX2 ARITHMETHIC_EXPRESSION'
+    pass
+
+def p_COMPARE_EXPRESSION_AUX2(p):
+    '''COMPARE_EXPRESSION_AUX2 : LESSTHAN
     | GREATERTHAN
-    | LESSTHAN GREATERTHAN'''
-
-def p_EXP(p):
-    'EXP : TERMINO EX1'
+    | DOUBLEEQUALS
+    | NOTEQUALS'''
     pass
 
-def p_EX1(p):
-    '''EX1 : TERMINO EX2 EX1
+def p_ARITHMETIC_EXPRESSION(p):
+    'ARITHMETIC_EXPRESSION : TERM ARITHMETIC_EXPRESSION_AUX'
+    pass
+
+def p_ARITHMETIC_EXPRESSION_AUX(p):
+    '''ARITHMETIC_EXPRESSION_AUX : ARITHMETIC_EXPRESSION_AUX2 ARITHMETIC_EXPRESSION
     | empty'''
     pass
 
-def p_EX2(p):
-    '''EX2 : PLUS
-    | MINUS
-    '''
-
-def p_TERMINO(p):
-    'TERMINO : FACTOR T1'
+def p_ARITHMETIC_EXPRESSION_AUX2(p):
+    '''ARITHMETIC_EXPRESSION_AUX2 : PLUS
+    | MINUS'''
     pass
 
-def p_T1(p):
-    '''T1 : FACTOR T2 T1
+def p_TERM(p):
+    'TERM : FACTOR TERM_AUX'
+    pass
+
+def p_TERM_AUX(p):
+    '''TERM_AUX : TERM_AUX2 TERM
     | empty'''
     pass
 
-def p_T2(p):
-    '''T2 : MULTIPLY
+def p_TERM_AUX2(p):
+    '''TERM_AUX2 : MULTIPLY
     | DIVIDE'''
+    pass
 
 def p_FACTOR(p):
     '''FACTOR : LPAREN EXPRESSION RPAREN
-    | F1 VARCTE'''
-    pass
-
-def p_F1(p):
-    '''F1 : EX2
-    | empty
-    '''
-
-def p_VARCTE(p):
-    '''VARCTE : ID
     | CTEI
-    | CTEF'''
-    pass
-
-def p_CONDICION(p):
-    'CONDICION : IF LPAREN EXPRESSION RPAREN BODY C1 COLON'
-    pass
-
-def p_C1(p):
-    '''C1 : ELSE BODY
-    | empty'''
-    pass
-
-def p_ESCRITURA(p):
-    'ESCRITURA : PRINT LPAREN ES1 ES2 RPAREN SEMICOLON'
-    pass
-
-def p_ES1(p):
-    '''ES1 : CTESTRING
-    | EXPRESSION DOT ES1
-    | empty
-    '''
-    pass
-
-def p_ES2(p):
-    '''ES2 : CTESTRING
-    | EXPRESSION
-    '''
+    | CTESTRING
+    | CTEF
+    | VAR
+    | FUNCTION_CALL'''
     pass
 
 def p_error(p):
