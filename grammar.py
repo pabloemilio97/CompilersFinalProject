@@ -6,19 +6,23 @@ import ply.yacc as yacc
 
 #pending: add string for declaration?
 reserved = {
-    'program': 'PROGRAM_RESERVED',
-    'function': 'FUNCTION_RESERVED',
-    'void': 'VOID_RESERVED',
-    'let': 'LET_RESERVED',
-    'int': 'INT_RESERVED',
-    'float': 'FLOAT_RESERVED',
-    'print': 'PRINT_RESERVED',
-    'if': 'IF_RESERVED',
-    'else': 'ELSE_RESERVED',
-    'read': 'READ_RESERVED',
-    'write': 'WRITE_RESERVED',
-    'for': 'FOR_RESERVED',
-    'while': 'WHILE_RESERVED',
+    'program': 'PROGRAM',
+    'main': 'MAIN',
+    'function': 'FUNCTION',
+    'void': 'VOID',
+    'let': 'LET',
+    'int': 'INT',
+    'float': 'FLOAT',
+    'char': 'CHAR',
+    'print': 'PRINT',
+    'if': 'IF',
+    'else': 'ELSE',
+    'read': 'READ',
+    'write': 'WRITE',
+    'for': 'FOR',
+    'while': 'WHILE',
+    'return': 'RETURN',
+    'to': 'TO',
 }
 
 tokens = [
@@ -57,23 +61,33 @@ def t_ID(t):
   t.type = reserved.get(t.value, 'ID')# Check for reserved words
   return t
 
-start = 'PROGRAM'
+start = 'PROGRAM_RULE'
 
 def p_empty(p):
     'empty :'
     pass
 
-def p_PROGRAM(p):
-    'PROGRAM : program ID SEMICOLON VARS BODY MAIN'
+def p_PROGRAM_RULE(p):
+    'PROGRAM_RULE : PROGRAM ID SEMICOLON VARS BODY MAIN'
+    pass
+
+def p_MAIN_RULE(p):
+    'MAIN_RULE : MAIN LPAREN RPAREN LCURLY STATEMENTS RCURLY'
     pass
 
 def p_BODY(p):
-    '''BODY : FUNCTION BODY
+    '''BODY : FUNCTION_RULE BODY
     | empty'''
     pass
 
+def p_TYPE(p):
+    '''TYPE : INT
+    | FLOAT
+    | CHAR'''
+    pass
+
 def p_VARS(p):
-    '''VARS : let TYPE COLON ID_LIST SEMICOLON VARS
+    '''VARS : LET TYPE COLON ID_LIST SEMICOLON VARS
     | empty'''
     pass
 
@@ -87,13 +101,13 @@ def p_ID_LIST_AUX(p):
     | empty'''
     pass 
 
-def p_FUNCTION(p):
-    'FUNCTION : FUNCTION_AUX function ID LPAREN PARAM RPAREN FUNCTION_BODY'
+def p_FUNCTION_RULE(p):
+    'FUNCTION_RULE : FUNCTION_AUX FUNCTION ID LPAREN PARAM RPAREN FUNCTION_BODY'
     pass
 
 def p_FUNCTION_AUX(p):
     '''FUNCTION_AUX : TYPE
-    | void'''
+    | VOID'''
     pass
 
 def p_MULTIDIMENSIONAL(p):
@@ -132,11 +146,11 @@ def p_STATEMENTS(p):
 def p_STATEMENTS_AUX(p):
     '''STATEMENTS_AUX : ASSIGNMENT STATEMENTS
     | FUNCTION_CALL STATEMENTS
-    | READ STATEMENTS
+    | READ_RULE STATEMENTS
     | WRITE STATEMENTS
-    | IF STATEMENTS
-    | WHILE STATEMENTS
-    | FOR STATEMENTS
+    | IF_RULE STATEMENTS
+    | WHILE_RULE STATEMENTS
+    | FOR_RULE STATEMENTS
     '''
     pass
 
@@ -153,8 +167,8 @@ def p_FUNCTION_CALL_AUX(p):
     | empty'''
     pass
 
-def p_READ(p):
-    'READ : read LPAREN VAR READ_AUX RPAREN SEMICOLON'
+def p_READ_RULE(p):
+    'READ_RULE : READ LPAREN VAR READ_AUX RPAREN SEMICOLON'
     pass
 
 def p_READ_AUX(p):
@@ -162,8 +176,8 @@ def p_READ_AUX(p):
     | empty'''
     pass
 
-def p_WRITE(p):
-    'WRITE : write LPAREN WRITE_AUX WRITE_AUX2 RPAREN SEMICOLON'
+def p_WRITE_RULE(p):
+    'WRITE_RULE : WRITE LPAREN WRITE_AUX WRITE_AUX2 RPAREN SEMICOLON'
     pass
 
 def p_WRITE_AUX(p):
@@ -183,19 +197,19 @@ def p_VAR(p):
     pass
 
 def p_FUNCTION_RETURN(p):
-    'FUNCTION_RETURN : return EXPRESSION SEMICOLON'
+    'FUNCTION_RETURN : RETURN EXPRESSION SEMICOLON'
     pass
 
-def p_IF(p):
-    'IF : if LPAREN EXPRESSION RPAREN LCURLY STATEMENTS RCURLY else LCURLY STATEMENTS RCURLY'
+def p_IF_RULE(p):
+    'IF_RULE : IF LPAREN EXPRESSION RPAREN LCURLY STATEMENTS RCURLY ELSE LCURLY STATEMENTS RCURLY'
     pass
 
-def p_WHILE(p):
-    'WHILE : while LPAREN EXPRESSION RPAREN LCURLY STATEMENTS RCURLY'
+def p_WHILE_RULE(p):
+    'WHILE_RULE : WHILE LPAREN EXPRESSION RPAREN LCURLY STATEMENTS RCURLY'
     pass
 
-def p_FOR(p):
-    'FOR : for LPAREN VAR EQUALS EXPRESSION to EXPRESSION RPAREN LCURLY STATEMENTS RCURLY'
+def p_FOR_RULE(p):
+    'FOR_RULE : FOR LPAREN VAR EQUALS EXPRESSION TO EXPRESSION RPAREN LCURLY STATEMENTS RCURLY'
     pass
 
 def p_EXPRESSION(p):
@@ -217,11 +231,11 @@ def p_AND_EXPRESSION_AUX(p):
     pass
 
 def p_COMPARE_EXPRESSION(p):
-    'COMPARE_EXPRESSION : ARITHMETHIC_EXPRESSION COMPARE_EXPRESSION_AUX ARITMETHIC_EXPRESSION'
+    'COMPARE_EXPRESSION : ARITHMETIC_EXPRESSION COMPARE_EXPRESSION_AUX ARITHMETIC_EXPRESSION'
     pass
 
 def p_COMPARE_EXPRESSION_AUX(p):
-    'COMPARE_EXPRESSION_AUX : COMPARE_EXPRESSION_AUX2 ARITHMETHIC_EXPRESSION'
+    'COMPARE_EXPRESSION_AUX : COMPARE_EXPRESSION_AUX2 ARITHMETIC_EXPRESSION'
     pass
 
 def p_COMPARE_EXPRESSION_AUX2(p):
