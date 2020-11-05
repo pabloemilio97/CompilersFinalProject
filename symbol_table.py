@@ -38,6 +38,7 @@ def insert_function(func_name, type):
         func_map[func_name] = {
             'type': type,
             'vars': {},
+            'params': [],
         }
 
 def insert_local_var(func_name, var_name, type, value=None):
@@ -70,26 +71,25 @@ def insert_global_var(global_var_name, type, value=None):
 
 def insert_param(func_name, param_name, param_type):
     # append param to a function
-    func_map[func_name]['params'].append([param_name, param_type])
+    func_map[func_name]['params'].append((param_name, param_type))
 
 
 
 # testing
 
-# insert_function('global', 'void')
-# insert_function('main', 'int')
+insert_function('global', 'void')
+insert_function('main', 'int')
 
-# insert_global_var('x', 'int', '10')
-# insert_global_var('y', 'int', '20')
-# insert_global_var('z', 'int', '30')
-
-
-# insert_local_var('main', 'a', 'int', '10')
-# insert_local_var('main', 'b', 'int', '20')
-# insert_local_var('main', 'c', 'int', '30')
-
-# insert_local_var('main', 'x', 'int', '20')
+insert_global_var('x', 'int', '10')
+insert_global_var('y', 'int', '20')
+insert_global_var('z', 'int', '30')
 
 
-# print(func_map['global']['vars'])
+insert_local_var('main', 'a', 'int', '10')
+insert_local_var('main', 'b', 'int', '20')
+insert_local_var('main', 'c', 'int', '30')
+
+insert_param('main', 'numero', 'int')
+
+print(func_map['main']['params'])
 

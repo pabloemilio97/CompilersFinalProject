@@ -1,0 +1,8 @@
+program programa;
+
+let int : x = 10;
+
+main () {
+    let int : y = 20;
+    x = 10;
+}
