@@ -25,11 +25,10 @@ reserved = {
 }
 
 tokens = [
-    'ID', 'AND', 'OR', 'COMMENT', 'COLON', 'SEMICOLON', 'LBRACKET', 'RBRACKET', 'LCURLY', 'RCURLY', 'EQUALS', 'DOUBLEEQUALS', 'NOTEQUALS', 'GREATERTHAN', 'LESSTHAN', 'LPAREN', 'RPAREN', 'COMMA', 'CTESTRING',
+    'ID', 'AND', 'OR', 'COMMENT', 'SEMICOLON', 'LBRACKET', 'RBRACKET', 'LCURLY', 'RCURLY', 'EQUALS', 'DOUBLEEQUALS', 'NOTEQUALS', 'GREATERTHAN', 'LESSTHAN', 'LPAREN', 'RPAREN', 'COMMA', 'CTECHAR',
     'PLUS', 'MINUS', 'MULTIPLY', 'DIVIDE', 'CTEI', 'CTEF',
 ] + list(reserved.values())
 
-t_COLON      = r':'
 t_SEMICOLON  = r';'
 t_LCURLY    = r'{'
 t_RCURLY    = r'}'
@@ -43,16 +42,20 @@ t_LESSTHAN     = r'<'
 t_LPAREN    = r'\('
 t_RPAREN    = r'\)'
 t_COMMA     = r'\,'
-t_CTESTRING = r'".*"'
+t_CTECHAR = r'"[a-zA-Z0-9]"'
 t_PLUS      = r'\+'
 t_MINUS     = r'-'
 t_MULTIPLY  = r'\*'
 t_DIVIDE    = r'/'
-t_CTEI      = r'[1-9][0-9]*'
-t_CTEF      = r'[1-9][0-9]*\.[0-9]'
+t_CTEI      = r'[0-9]+'
+t_CTEF      = r'[0-9]+\.[0-9]*'
 t_AND       = r'\&'
 t_OR       = r'\|'
-t_ignore_COMMENT = r'%%.*%%'
+
+
+def t_COMMENT(t):
+    r'(/\*(.|\n)*?\*/)|(//.*)'
+    pass
 
 def t_ID(t):
   r'[a-zA-Z_][a-zA-Z_0-9]*'
@@ -83,7 +86,7 @@ def p_TYPE(p):
     
 
 def p_VARS(p):
-    '''VARS : LET TYPE COLON ID_LIST SEMICOLON VARS
+    '''VARS : LET TYPE ID_LIST SEMICOLON VARS
     | empty'''
 
     
@@ -136,36 +139,47 @@ def p_FUNCTION_BODY_AUX(p):
     
 
 def p_STATEMENTS(p):
-    '''STATEMENTS : STATEMENTS_AUX
+    '''STATEMENTS : STATEMENTS_AUX STATEMENTS
     | empty'''
     
 
 def p_STATEMENTS_AUX(p):
-    '''STATEMENTS_AUX : ASSIGNMENT STATEMENTS
-    | FUNCTION_CALL STATEMENTS
-    | READ_RULE STATEMENTS
-    | WRITE_RULE STATEMENTS
-    | IF_RULE STATEMENTS
-    | WHILE_RULE STATEMENTS
-    | FOR_RULE STATEMENTS
+    '''STATEMENTS_AUX : STATEMENTS_AUX2 SEMICOLON
+    | STATEMENTS_AUX3'''
+
+def p_STATEMENTS_AUX2(p):
+    '''STATEMENTS_AUX2 : ASSIGNMENT
+    | FUNCTION_CALL
+    | READ_RULE
+    | WRITE_RULE
     '''
-    
+
+def p_STATEMENTS_AUX3(p):
+    '''STATEMENTS_AUX3 : IF_RULE
+    | WHILE_RULE
+    | FOR_RULE
+    '''
 
 def p_ASSIGNMENT(p):
-    'ASSIGNMENT : VAR EQUALS EXPRESSION SEMICOLON'
+    'ASSIGNMENT : VAR EQUALS EXPRESSION'
     
 
 def p_FUNCTION_CALL(p):
-    'FUNCTION_CALL : ID LPAREN EXPRESSION FUNCTION_CALL_AUX RPAREN SEMICOLON'
-    
+    'FUNCTION_CALL : ID LPAREN FUNCTION_CALL_AUX RPAREN'
+
 
 def p_FUNCTION_CALL_AUX(p):
-    '''FUNCTION_CALL_AUX : COMMA EXPRESSION FUNCTION_CALL_AUX
+    '''FUNCTION_CALL_AUX : EXPRESSION FUNCTION_CALL_AUX2
+    | empty'''
+    
+
+def p_FUNCTION_CALL_AUX2(p):
+    '''FUNCTION_CALL_AUX2 : COMMA EXPRESSION FUNCTION_CALL_AUX2
     | empty'''
     
 
 def p_READ_RULE(p):
-    'READ_RULE : READ LPAREN VAR READ_AUX RPAREN SEMICOLON'
+    'READ_RULE : READ LPAREN VAR READ_AUX RPAREN'
     
 
 def p_READ_AUX(p):
@@ -174,16 +188,11 @@ def p_READ_AUX(p):
     
 
 def p_WRITE_RULE(p):
-    'WRITE_RULE : WRITE LPAREN WRITE_AUX WRITE_AUX2 RPAREN SEMICOLON'
+    'WRITE_RULE : WRITE LPAREN EXPRESSION WRITE_AUX RPAREN'
     
 
 def p_WRITE_AUX(p):
-    '''WRITE_AUX : CTESTRING
-    | EXPRESSION'''
-    
-
-def p_WRITE_AUX2(p):
-    '''WRITE_AUX2 : COMMA WRITE_AUX WRITE_AUX2 
+    '''WRITE_AUX : COMMA EXPRESSION WRITE_AUX 
     | empty'''
     
 
@@ -198,8 +207,11 @@ def p_FUNCTION_RETURN(p):
     
 
 def p_IF_RULE(p):
-    'IF_RULE : IF LPAREN EXPRESSION RPAREN LCURLY STATEMENTS RCURLY ELSE LCURLY STATEMENTS RCURLY'
-    
+    'IF_RULE : IF LPAREN EXPRESSION RPAREN LCURLY STATEMENTS RCURLY IF_AUX'
+
+def p_IF_AUX(p):
+    '''IF_AUX : ELSE LCURLY STATEMENTS RCURLY
+    | empty'''
 
 def p_WHILE_RULE(p):
     'WHILE_RULE : WHILE LPAREN EXPRESSION RPAREN LCURLY STATEMENTS RCURLY'
@@ -228,11 +240,12 @@ def p_AND_EXPRESSION_AUX(p):
     
 
 def p_COMPARE_EXPRESSION(p):
-    'COMPARE_EXPRESSION : ARITHMETIC_EXPRESSION COMPARE_EXPRESSION_AUX ARITHMETIC_EXPRESSION'
+    'COMPARE_EXPRESSION : ARITHMETIC_EXPRESSION COMPARE_EXPRESSION_AUX'
     
 
 def p_COMPARE_EXPRESSION_AUX(p):
-    'COMPARE_EXPRESSION_AUX : COMPARE_EXPRESSION_AUX2 ARITHMETIC_EXPRESSION'
+    '''COMPARE_EXPRESSION_AUX : COMPARE_EXPRESSION_AUX2 ARITHMETIC_EXPRESSION
+    | empty'''
     
 
 def p_COMPARE_EXPRESSION_AUX2(p):
@@ -273,14 +286,14 @@ def p_TERM_AUX2(p):
 def p_FACTOR(p):
     '''FACTOR : LPAREN EXPRESSION RPAREN
     | CTEI
-    | CTESTRING
+    | CTECHAR
     | CTEF
     | VAR
     | FUNCTION_CALL'''
     
 
 def p_error(p):
-    print("Apropiado")
+    print('Syntax error!', p)
 
 def t_newline(t):
     r'\n+'
@@ -323,4 +336,6 @@ while True:
     if not tok:
         break
     print(tok)
+
+# use debug=True for debugging
 parser.parse(data)

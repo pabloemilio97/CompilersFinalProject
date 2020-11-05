@@ -1,8 +1,49 @@
 program programa;
+let int a[1], b[1][20], c;
+let char d[300], e[4000], f;
+let float g[5], h[60], i;
 
-let int : x = 10;
+float function floatFunc()
+{
+    return 1 + 2.50 + 3.70;
+}
 
-main () {
-    let int : y = 20;
-    x = 10;
+void function voidfunc(int x, char y, float z)
+let int localVar;
+{
+    localVar = 1 * 1;
+}
+
+main(){
+    /*
+    This is a comment
+    */
+    //Also a comment
+    a[0] = (1 == 2) & (1 > 1);
+    b[1][1] = 8 + 5 * 15 / 1 - 100;
+    f = "Z";
+    i = (floatFunc()) + 10.5;
+    voidfunc(a[0], f, 10 + 17.5);
+    write(10,13);
+    read(a[1],b[1][1]);
+
+    if(b[1][1] | a[0]){
+        e[1] = "1";
+        e[2] = "e";
+    }
+
+    if(1){
+
+    }
+    else{
+        voidfunc(1, "a", 0.1);
+    }
+
+    while(a[0] > 0){
+        a[0] = a[0] - 1;
+    }
+
+    for(a[1] = 1 - 5 * 7 to 150/2){
+        d[a[1]] = 100;
+    }
 }
