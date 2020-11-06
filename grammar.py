@@ -3,6 +3,9 @@
 
 import ply.lex as lex
 import ply.yacc as yacc
+import quad_generator
+import shared
+import symbol_table
 
 #pending: add string for declaration?
 reserved = {
@@ -68,8 +71,11 @@ def p_empty(p):
     'empty :'
 
 def p_PROGRAM_RULE(p):
-    'PROGRAM_RULE : PROGRAM ID SEMICOLON VARS BODY MAIN_RULE'
+    'PROGRAM_RULE : PROGRAM_RULE_AUX ID SEMICOLON VARS BODY MAIN_RULE'
 
+def p_PROGRAM_RULE_AUX(p):
+    'PROGRAM_RULE_AUX : PROGRAM'
+    symbol_table.insert_function('global')
 
 def p_MAIN_RULE(p):
     'MAIN_RULE : MAIN LPAREN RPAREN LCURLY STATEMENTS RCURLY'
@@ -77,24 +83,29 @@ def p_MAIN_RULE(p):
 def p_BODY(p):
     '''BODY : FUNCTION_RULE BODY
     | empty'''
-    
 
 def p_TYPE(p):
     '''TYPE : INT
     | FLOAT
     | CHAR'''
-    
+    type = p[1]
+    p[0] = type
 
 def p_VARS(p):
     '''VARS : LET TYPE ID_LIST SEMICOLON VARS
     | empty'''
+    if len(p) == 6: # if it's declaring a variable
+        var_name = p[3]
+        var_type = p[2]
+        print(shared.context, var_name, var_type)
 
-    
 
 def p_ID_LIST(p):
     '''ID_LIST : ID ID_LIST_AUX
     | MULTIDIMENSIONAL ID_LIST_AUX'''
-    
+    var_name = p[1]
+    if len(p) == 3: # if it's declaring a variable pass it to VARS
+        p[0] = var_name
 
 def p_ID_LIST_AUX(p):
     '''ID_LIST_AUX : COMMA ID_LIST
@@ -103,11 +114,16 @@ def p_ID_LIST_AUX(p):
 
 def p_FUNCTION_RULE(p):
     'FUNCTION_RULE : FUNCTION_AUX FUNCTION ID LPAREN PARAM RPAREN FUNCTION_BODY'
-    
+    func_name = p[3]
+    shared.context = func_name
+    print(shared.context)
+    symbol_table.insert_function(func_name)
 
 def p_FUNCTION_AUX(p):
     '''FUNCTION_AUX : TYPE
     | VOID'''
+    func_type = p[1]
+    symbol_table.func_map[shared.context]['type'] = func_type
     
 
 def p_MULTIDIMENSIONAL(p):
@@ -323,7 +339,7 @@ elif (aux == 2):
     data = '''prog 1'''
 
 elif (aux == 3):
-    f = open("test.txt", "r")
+    f = open("testQuad.txt", "r")
     if f.mode == 'r':
         data = f.read()
     else:
@@ -335,7 +351,9 @@ while True:
     tok = lexer.token()
     if not tok:
         break
-    print(tok)
 
 # use debug=True for debugging
 parser.parse(data)
+
+
+# symbol_table.print_func_map()
