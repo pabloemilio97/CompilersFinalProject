@@ -29,7 +29,7 @@ empty_values = {
     'char': '',
 }
 
-def insert_function(func_name, type):
+def insert_function(func_name, type='void'):
     # check if already exists
     if func_name in func_map.keys():
         err('function was already declared', func_name)
@@ -41,7 +41,7 @@ def insert_function(func_name, type):
             'params': [],
         }
 
-def insert_local_var(func_name, var_name, type, value=None):
+def insert_local_var(func_name, var_name, type=None, value=None):
     # Inserts local variable for a function
     if var_name in func_map[func_name]['vars'].keys(): # already declared in same function
         err('variable ' + var_name + ' already declared', var_name)
@@ -75,21 +75,31 @@ def insert_param(func_name, param_name, param_type):
 
 
 
+def print_func_map(map=func_map, indent=0):
+   for key, value in map.items():
+      print('\t' * indent + str(key))
+      if isinstance(value, dict):
+         print_func_map(value, indent+1)
+      else:
+         print('\t' * (indent+1) + str(value))
+
+
+
 # testing
 
-insert_function('global', 'void')
-insert_function('main', 'int')
+# insert_function('global', 'void')
+# insert_function('main', 'int')
 
-insert_global_var('x', 'int', '10')
-insert_global_var('y', 'int', '20')
-insert_global_var('z', 'int', '30')
+# insert_global_var('x', 'int', '10')
+# insert_global_var('y', 'int', '20')
+# insert_global_var('z', 'int', '30')
 
 
-insert_local_var('main', 'a', 'int', '10')
-insert_local_var('main', 'b', 'int', '20')
-insert_local_var('main', 'c', 'int', '30')
+# insert_local_var('main', 'a', 'int', '10')
+# insert_local_var('main', 'b', 'int', '20')
+# insert_local_var('main', 'c', 'int', '30')
 
-insert_param('main', 'numero', 'int')
+# insert_param('main', 'numero', 'int')
 
-print(func_map['main']['params'])
+# print(func_map['main']['params'])
 
