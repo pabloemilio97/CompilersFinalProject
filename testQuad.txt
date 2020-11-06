@@ -1,0 +1,32 @@
+program programa;
+let int xGlobal;
+let int yGlobal;
+
+void function myFunc()
+let int tmpMyFuncVar;
+let char tmpMyFuncVar2;
+let float tmpMyFuncVar3;
+{
+    tmpLocalVar = 10;
+}
+
+
+int function mySecondFunc()
+let int tmpMySecondFuncVar;
+let char tmpMySecondFuncVar2;
+let float tmpMySecondFuncVar3;
+{
+    tmpLocalVar = 10;
+}
+
+char function myThirdFunc()
+let int tmpMyThirdFuncVar;
+let char tmpMyThirdFuncVar2;
+let float tmpMyThirdFuncVar3;
+{
+    tmpLocalVar = 10;
+}
+
+
+main() {
+}
