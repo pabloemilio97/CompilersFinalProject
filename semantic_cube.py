@@ -157,12 +157,12 @@ char_map = {
 
 
 # First level
-map = {
+cube = {
     "int": int_map,
     "float": float_map,
     "char": char_map,
 }
 
 def find_return_type(type1, type2, operator):
-    return map[type1][type2][operator]
+    return cube[type1][type2][operator]
 
