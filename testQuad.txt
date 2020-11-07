@@ -1,7 +1,7 @@
 program programa;
 let int x;
 
-void function myFunc()
+void function myFunc(int x, char y, float z)
 let int tmpMyFuncVar;
 let char tmpMyFuncVar2;
 let float tmpMyFuncVar3;
@@ -10,7 +10,7 @@ let float tmpMyFuncVar3;
 }
 
 
-int function mySecondFunc()
+int function mySecondFunc(int x2, char y2, float z2)
 let int tmpMySecondFuncVar;
 let char tmpMySecondFuncVar2;
 let float tmpMySecondFuncVar3;
@@ -18,7 +18,7 @@ let float tmpMySecondFuncVar3;
     tmpLocalVar = 10;
 }
 
-char function myThirdFunc()
+char function myThirdFunc(int x3, char y3, float z3)
 let int tmpMyThirdFuncVar;
 let char tmpMyThirdFuncVar2;
 let float tmpMyThirdFuncVar3;

@@ -87,10 +87,28 @@ def p_BODY(p):
 def p_FUNCTION_RULE(p):
     'FUNCTION_RULE : FUNCTION_AUX FUNCTION FUNCTION_ID_AUX LPAREN PARAM RPAREN FUNCTION_BODY'
 
+def p_PARAM(p):
+    '''PARAM : PARAM_TYPE_ID_AUX PARAM_AUX
+    | empty'''
+
+def p_PARAM_TYPE_ID_AUX(p):
+    'PARAM_TYPE_ID_AUX : TYPE ID'
+    param_type = p[1]
+    param_name = p[2]
+    symbol_table.insert_param(shared.context, param_name, param_type)
+
+def p_PARAM_AUX(p):
+    '''PARAM_AUX : COMMA PARAM_AUX2
+    | empty'''
+
+def p_PARAM_AUX2(p):
+    'PARAM_AUX2 : PARAM_TYPE_ID_AUX PARAM_AUX'
+
+
 def p_FUNCTION_ID_AUX(p):
     'FUNCTION_ID_AUX : ID'
     function_name = p[1]
-    symbol_table.insert_function(function_name)
+    symbol_table.insert_function(function_name) # Inserting function into symbol table
     shared.context = function_name
 
 def p_FUNCTION_AUX(p):
@@ -136,20 +154,6 @@ def p_ID_LIST_AUX(p):
 def p_MULTIDIMENSIONAL(p):
     '''MULTIDIMENSIONAL : ID LBRACKET CTEI RBRACKET
     | ID LBRACKET CTEI RBRACKET LBRACKET CTEI RBRACKET'''
-    
-
-def p_PARAM(p):
-    '''PARAM : TYPE ID PARAM_AUX
-    | empty'''
-    
-
-def p_PARAM_AUX(p):
-    '''PARAM_AUX : COMMA PARAM_AUX2
-    | empty'''
-    
-
-def p_PARAM_AUX2(p):
-    'PARAM_AUX2 : TYPE ID PARAM_AUX'
     
 
 def p_STATEMENTS(p):
