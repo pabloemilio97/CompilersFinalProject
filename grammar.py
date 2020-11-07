@@ -85,11 +85,13 @@ def p_BODY(p):
     | empty'''
 
 def p_FUNCTION_RULE(p):
-    'FUNCTION_RULE : FUNCTION_AUX FUNCTION ID LPAREN PARAM RPAREN FUNCTION_BODY'
-    func_name = p[3]
-    print(func_name)
-    shared.context = func_name # assing func_name to my global variable in python
-    symbol_table.insert_function(func_name)
+    'FUNCTION_RULE : FUNCTION_AUX FUNCTION FUNCTION_ID_AUX LPAREN PARAM RPAREN FUNCTION_BODY'
+
+def p_FUNCTION_ID_AUX(p):
+    'FUNCTION_ID_AUX : ID'
+    function_name = p[1]
+    symbol_table.insert_function(function_name)
+    shared.context = function_name
 
 def p_FUNCTION_AUX(p):
     '''FUNCTION_AUX : TYPE
@@ -117,8 +119,7 @@ def p_VARS(p):
     if len(p) == 6: # if it's declaring a variable
         var_name = p[3]
         var_type = p[2]
-        print(shared.context, var_name, var_type)
-
+        symbol_table.insert_local_var(shared.context, var_name, var_type)
 
 def p_ID_LIST(p):
     '''ID_LIST : ID ID_LIST_AUX
@@ -353,4 +354,4 @@ while True:
 parser.parse(data)
 
 
-# symbol_table.print_func_map()
+symbol_table.print_func_map()
