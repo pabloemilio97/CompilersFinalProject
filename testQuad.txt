@@ -1,6 +1,5 @@
 program programa;
-let int xGlobal;
-let int yGlobal;
+let int x;
 
 void function myFunc()
 let int tmpMyFuncVar;

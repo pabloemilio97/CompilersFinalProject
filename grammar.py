@@ -84,6 +84,26 @@ def p_BODY(p):
     '''BODY : FUNCTION_RULE BODY
     | empty'''
 
+def p_FUNCTION_RULE(p):
+    'FUNCTION_RULE : FUNCTION_AUX FUNCTION ID LPAREN PARAM RPAREN FUNCTION_BODY'
+    func_name = p[3]
+    print(func_name)
+    shared.context = func_name # assing func_name to my global variable in python
+    symbol_table.insert_function(func_name)
+
+def p_FUNCTION_AUX(p):
+    '''FUNCTION_AUX : TYPE
+    | VOID'''
+    func_type = p[1]
+    symbol_table.func_map[shared.context]['type'] = func_type
+
+def p_FUNCTION_BODY(p):
+    '''FUNCTION_BODY : VARS LCURLY STATEMENTS FUNCTION_BODY_AUX RCURLY'''
+
+def p_FUNCTION_BODY_AUX(p):
+    '''FUNCTION_BODY_AUX : FUNCTION_RETURN
+    | empty'''
+
 def p_TYPE(p):
     '''TYPE : INT
     | FLOAT
@@ -110,20 +130,6 @@ def p_ID_LIST(p):
 def p_ID_LIST_AUX(p):
     '''ID_LIST_AUX : COMMA ID_LIST
     | empty'''
-     
-
-def p_FUNCTION_RULE(p):
-    'FUNCTION_RULE : FUNCTION_AUX FUNCTION ID LPAREN PARAM RPAREN FUNCTION_BODY'
-    func_name = p[3]
-    shared.context = func_name
-    print(shared.context)
-    symbol_table.insert_function(func_name)
-
-def p_FUNCTION_AUX(p):
-    '''FUNCTION_AUX : TYPE
-    | VOID'''
-    func_type = p[1]
-    symbol_table.func_map[shared.context]['type'] = func_type
     
 
 def p_MULTIDIMENSIONAL(p):
@@ -143,15 +149,6 @@ def p_PARAM_AUX(p):
 
 def p_PARAM_AUX2(p):
     'PARAM_AUX2 : TYPE ID PARAM_AUX'
-    
-
-def p_FUNCTION_BODY(p):
-    'FUNCTION_BODY : VARS LCURLY STATEMENTS FUNCTION_BODY_AUX RCURLY'
-    
-
-def p_FUNCTION_BODY_AUX(p):
-    '''FUNCTION_BODY_AUX : FUNCTION_RETURN
-    | empty'''
     
 
 def p_STATEMENTS(p):
@@ -324,7 +321,7 @@ def t_error(t):
 
 lexer = lex.lex()
 
-parser = yacc.yacc()
+parser = yacc.yacc(debug=False, write_tables=False)
 
 
 aux = int(input("1.Valido\n2.No valido\n3.Probar de documento 'test.txt'\n"))
