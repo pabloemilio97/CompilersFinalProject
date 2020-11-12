@@ -10,8 +10,6 @@ quadruples = []
 operations = {
     '>': 0,
     '<': 0,
-    '!=': 0,
-    '==': 0,
     '+': 1,
     '-': 1,
     '/': 2,
@@ -30,7 +28,7 @@ def gen_arithmetic_quadruples(expression):
             if len(operations_stack) == 0:
                 operations_stack.append(value)
             elif operations[top(operations_stack)] >= operations[value]: # if previous operation is more important than current one then create quadruple
-                while len(operations_stack) != 0 and operations[top(operations_stack)] >= operations[value]: # keep checking until before values
+                while len(operations_stack) != 0 and operations[top(operations_stack)] >= operations[value]: # keep checking current operation with previous elements in stack
                     second_operand = operands_stack.pop()
                     first_operand = operands_stack.pop()
                     gen_quad(operations_stack.pop(), first_operand, second_operand, f't{curr_register}')
