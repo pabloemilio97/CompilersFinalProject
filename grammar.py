@@ -384,7 +384,7 @@ elif (aux == 2):
     data = '''prog 1'''
 
 elif (aux == 3):
-    f = open("testQuad.txt", "r")
+    f = open("test_quad.txt", "r")
     if f.mode == 'r':
         data = f.read()
     else:
