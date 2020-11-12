@@ -6,6 +6,8 @@ import ply.yacc as yacc
 import quad_generator
 import shared
 import symbol_table
+import error
+import quad_generator
 
 #pending: add string for declaration?
 reserved = {
@@ -180,6 +182,11 @@ def p_STATEMENTS_AUX3(p):
 
 def p_ASSIGNMENT(p):
     'ASSIGNMENT : VAR EQUALS EXPRESSION'
+    current_vars_map = symbol_table.func_map[shared.context]['vars']
+    assign_to = shared.assign_to
+    expression = shared.arithmetic_operation
+    quad_generator.gen_arithmetic_quadruples(expression)
+    shared.arithmetic_operation = []
     
 
 def p_FUNCTION_CALL(p):
@@ -218,6 +225,12 @@ def p_VAR(p):
     '''VAR : ID
     | ID LBRACKET EXPRESSION RBRACKET
     | ID LBRACKET EXPRESSION RBRACKET LBRACKET EXPRESSION RBRACKET'''
+    shared.assign_to = ''
+    var_name = p[1]
+    if var_name not in symbol_table.func_map[shared.context]['vars']:
+        error.gen_err(f'Asignando valor a variable "{var_name}" que no existe')
+    shared.assign_to = var_name
+    p[0] = var_name
     
 
 def p_FUNCTION_RETURN(p):
@@ -241,6 +254,8 @@ def p_FOR_RULE(p):
 
 def p_EXPRESSION(p):
     'EXPRESSION : AND_EXPRESSION EXPRESSION_AUX'
+    value = shared.arithmetic_operation
+    p[0] = value
     
 
 def p_EXPRESSION_AUX(p):
@@ -259,6 +274,7 @@ def p_AND_EXPRESSION_AUX(p):
 
 def p_COMPARE_EXPRESSION(p):
     'COMPARE_EXPRESSION : ARITHMETIC_EXPRESSION COMPARE_EXPRESSION_AUX'
+
     
 
 def p_COMPARE_EXPRESSION_AUX(p):
@@ -271,6 +287,8 @@ def p_COMPARE_EXPRESSION_AUX2(p):
     | GREATERTHAN
     | DOUBLEEQUALS
     | NOTEQUALS'''
+    operation = p[1]
+    shared.arithmetic_operation.append(operation)
     
 
 def p_ARITHMETIC_EXPRESSION(p):
@@ -279,17 +297,17 @@ def p_ARITHMETIC_EXPRESSION(p):
 
 def p_ARITHMETIC_EXPRESSION_AUX(p):
     '''ARITHMETIC_EXPRESSION_AUX : ARITHMETIC_EXPRESSION_AUX2 ARITHMETIC_EXPRESSION
-    | empty'''
-    
+    | empty'''    
 
 def p_ARITHMETIC_EXPRESSION_AUX2(p):
     '''ARITHMETIC_EXPRESSION_AUX2 : PLUS
     | MINUS'''
+    operation = p[1]
+    shared.arithmetic_operation.append(operation)
     
 
 def p_TERM(p):
     'TERM : FACTOR TERM_AUX'
-    
 
 def p_TERM_AUX(p):
     '''TERM_AUX : TERM_AUX2 TERM
@@ -299,15 +317,40 @@ def p_TERM_AUX(p):
 def p_TERM_AUX2(p):
     '''TERM_AUX2 : MULTIPLY
     | DIVIDE'''
+    operation = p[1]
+    shared.arithmetic_operation.append(operation)
     
 
 def p_FACTOR(p):
-    '''FACTOR : LPAREN EXPRESSION RPAREN
+    '''FACTOR : LPAREN_AUX EXPRESSION RPAREN_AUX
     | CTEI
     | CTECHAR
     | CTEF
-    | VAR
+    | VAR_AUX
     | FUNCTION_CALL'''
+    if len(p) != 4:
+        factor = p[1]
+        shared.arithmetic_operation.append(factor)
+
+def p_LPAREN_AUX(p):
+    'LPAREN_AUX : LPAREN'
+    shared.arithmetic_operation.append(p[1])
+
+def p_RPAREN_AUX(p):
+    'RPAREN_AUX : RPAREN'
+    shared.arithmetic_operation.append(p[1])
+
+
+def p_VAR_AUX(p):
+    'VAR_AUX : ID'
+    current_func_map_vars = symbol_table.func_map[shared.context]['vars']
+    var_name = p[1]
+    if var_name not in current_func_map_vars:
+        error.gen_err(f'Tratando de asignar variable "{var_name}" que no existe')
+    elif current_func_map_vars[shared.assign_to]['type'] != current_func_map_vars[var_name]['type']:
+        error.gen_err(f'Tratando de asignar diferentes tipos, variable {shared.assign_to} a {var_name}')
+    else:
+        p[0] = str(current_func_map_vars[var_name]['value'])
     
 
 def p_error(p):
@@ -357,5 +400,5 @@ while True:
 # use debug=True for debugging
 parser.parse(data)
 
-
-symbol_table.print_func_map()
+# print(symbol_table.func_map['myFunc']['vars'])
+# symbol_table.print_func_map()
