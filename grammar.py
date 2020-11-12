@@ -97,7 +97,7 @@ def p_PARAM_TYPE_ID_AUX(p):
     'PARAM_TYPE_ID_AUX : TYPE ID'
     param_type = p[1]
     param_name = p[2]
-    symbol_table.insert_param(shared.context, param_name, param_type)
+    symbol_table.insert_param(shared.scope, param_name, param_type)
 
 def p_PARAM_AUX(p):
     '''PARAM_AUX : COMMA PARAM_AUX2
@@ -111,13 +111,13 @@ def p_FUNCTION_ID_AUX(p):
     'FUNCTION_ID_AUX : ID'
     function_name = p[1]
     symbol_table.insert_function(function_name) # Inserting function into symbol table
-    shared.context = function_name
+    shared.scope = function_name
 
 def p_FUNCTION_AUX(p):
     '''FUNCTION_AUX : TYPE
     | VOID'''
     func_type = p[1]
-    symbol_table.func_map[shared.context]['type'] = func_type
+    symbol_table.func_map[shared.scope]['type'] = func_type
 
 def p_FUNCTION_BODY(p):
     '''FUNCTION_BODY : VARS LCURLY STATEMENTS FUNCTION_BODY_AUX RCURLY'''
@@ -139,7 +139,7 @@ def p_VARS(p):
     if len(p) == 6: # if it's declaring a variable
         var_name = p[3]
         var_type = p[2]
-        symbol_table.insert_local_var(shared.context, var_name, var_type)
+        symbol_table.insert_local_var(shared.scope, var_name, var_type)
 
 def p_ID_LIST(p):
     '''ID_LIST : ID ID_LIST_AUX
@@ -182,10 +182,9 @@ def p_STATEMENTS_AUX3(p):
 
 def p_ASSIGNMENT(p):
     'ASSIGNMENT : VAR EQUALS EXPRESSION'
-    current_vars_map = symbol_table.func_map[shared.context]['vars']
     assign_to = shared.assign_to
     expression = shared.arithmetic_operation
-    quad_generator.gen_arithmetic_quadruples(expression)
+    quad_generator.gen_assign_quadruples(expression, assign_to)
     shared.arithmetic_operation = []
     
 
@@ -227,7 +226,7 @@ def p_VAR(p):
     | ID LBRACKET EXPRESSION RBRACKET LBRACKET EXPRESSION RBRACKET'''
     shared.assign_to = ''
     var_name = p[1]
-    if var_name not in symbol_table.func_map[shared.context]['vars']:
+    if var_name not in symbol_table.func_map[shared.scope]['vars']:
         error.gen_err(f'Asignando valor a variable "{var_name}" que no existe')
     shared.assign_to = var_name
     p[0] = var_name
@@ -239,6 +238,8 @@ def p_FUNCTION_RETURN(p):
 
 def p_IF_RULE(p):
     'IF_RULE : IF LPAREN EXPRESSION RPAREN LCURLY STATEMENTS RCURLY IF_AUX'
+    quad_generator.gen_if_quadruples(shared.arithmetic_operation)
+    shared.arithmetic_operation = ''
 
 def p_IF_AUX(p):
     '''IF_AUX : ELSE LCURLY STATEMENTS RCURLY
@@ -343,14 +344,14 @@ def p_RPAREN_AUX(p):
 
 def p_VAR_AUX(p):
     'VAR_AUX : ID'
-    current_func_map_vars = symbol_table.func_map[shared.context]['vars']
+    current_func_map_vars = symbol_table.func_map[shared.scope]['vars']
     var_name = p[1]
     if var_name not in current_func_map_vars:
         error.gen_err(f'Tratando de asignar variable "{var_name}" que no existe')
     elif current_func_map_vars[shared.assign_to]['type'] != current_func_map_vars[var_name]['type']:
         error.gen_err(f'Tratando de asignar diferentes tipos, variable {shared.assign_to} a {var_name}')
     else:
-        p[0] = str(current_func_map_vars[var_name]['value'])
+        p[0] = var_name
     
 
 def p_error(p):

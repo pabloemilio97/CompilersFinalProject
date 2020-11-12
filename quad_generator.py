@@ -1,31 +1,45 @@
 import semantic_cube
 import symbol_table
+from shared import quadruples, operands_stack, operations_stack, jump_stack, curr_register, jump_operations
 
 cube = semantic_cube.cube
 func_map = symbol_table.func_map
 
-quadruples = []
-
-
 operations = {
     '>': 0,
     '<': 0,
+    '==': 0,
+    '!=': 0,
+    '>=': 0,
+    '<=': 0,
     '+': 1,
     '-': 1,
     '/': 2,
     '*': 2,
 }
 
-curr_register = 0
 
 def quad_pos():
     return len(quadruples) + 1
 
+def gen_assign_quadruples(expression, assign_to):
+    if len(expression) == 1:
+        gen_quad('=', expression[0], '', assign_to)
+    else:
+        gen_arithmetic_quadruples(expression)
+        gen_quad('=', quadruples[-1][-1], '', assign_to)
+
+
+def gen_if_quadruples(expression):
+    if len(expression) == 1:
+        pass
+    else:
+        gen_arithmetic_quadruples(expression)
+    # here we know that last quad has the result of if expression
+    gen_quad('gotoF', quadruples[-1][-1], '', '')
+
 def gen_arithmetic_quadruples(expression):
     global curr_register
-    curr_register = 1
-    operands_stack = []
-    operations_stack = []
     for value in expression:
         # print(value)
         # print('operations stack: ', operations_stack)
@@ -74,4 +88,7 @@ def top(stack):
 def gen_quad(q1, q2, q3, q4):
     quad = [quad_pos(), q1, q2, q3, q4]
     quadruples.append(quad)
+    if q1 in jump_operations:
+        jump_stack.append(quad_pos)
     print(quad)
+
