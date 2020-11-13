@@ -246,9 +246,19 @@ def p_EXPRESSION_AUX_IF(p):
     shared.arithmetic_operation.clear()
 
 def p_IF_AUX(p):
-    '''IF_AUX : ELSE LCURLY STATEMENTS RCURLY
+    '''IF_AUX : ELSE_AUX LCURLY STATEMENTS RCURLY_AUX_ELSE
     | empty'''
+    if len(p) < 5:
+        quad_generator.gen_endif_quadruples()   
 
+def p_ELSE_AUX(p):
+    'ELSE_AUX : ELSE'
+    quad_generator.gen_else_quadruples()
+
+def p_RCURLY_AUX_ELSE(p):
+    'RCURLY_AUX_ELSE : RCURLY'
+    quad_generator.gen_endelse_quadruples()   
+        
 def p_WHILE_RULE(p):
     'WHILE_RULE : WHILE LPAREN EXPRESSION RPAREN LCURLY STATEMENTS RCURLY'
     
@@ -387,7 +397,7 @@ elif (aux == 2):
     data = '''prog 1'''
 
 elif (aux == 3):
-    f = open("test_quad.txt", "r")
+    f = open("test.txt", "r")
     if f.mode == 'r':
         data = f.read()
     else:
@@ -403,5 +413,7 @@ while True:
 # use debug=True for debugging
 parser.parse(data)
 
+for q in shared.quadruples:
+    print(q)
 # print(symbol_table.func_map['myFunc']['vars'])
 # symbol_table.print_func_map()

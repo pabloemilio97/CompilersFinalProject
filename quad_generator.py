@@ -20,7 +20,7 @@ operations = {
 
 
 def quad_pos():
-    return len(quadruples) + 1
+    return str(len(quadruples))
 
 def gen_assign_quadruples(expression, assign_to):
     if len(expression) == 1:
@@ -38,6 +38,22 @@ def gen_if_quadruples(expression):
     # here we know that last quad has the result of if expression
     gen_quad('gotoF', quadruples[-1][-1], '', '')
 
+def gen_else_quadruples():
+    # The quadruple number to which the if's gotoF will go to
+    if_jump_to = int(jump_stack.pop())
+    gen_quad('goto', '', '', '')
+    quadruples[if_jump_to][4] = quad_pos()
+
+def _gen_endcondition_quadruples():
+    jump_to = int(jump_stack.pop())
+    quadruples[jump_to][4] = quad_pos()
+
+def gen_endelse_quadruples():
+    _gen_endcondition_quadruples()
+
+def gen_endif_quadruples():
+    _gen_endcondition_quadruples()
+    
 def gen_arithmetic_quadruples(expression):
     global curr_register
     for value in expression:
@@ -87,8 +103,7 @@ def top(stack):
 
 def gen_quad(q1, q2, q3, q4):
     quad = [quad_pos(), q1, q2, q3, q4]
-    quadruples.append(quad)
     if q1 in jump_operations:
-        jump_stack.append(quad_pos)
-    print(quad)
+        jump_stack.append(quad_pos())
+    quadruples.append(quad)
 
