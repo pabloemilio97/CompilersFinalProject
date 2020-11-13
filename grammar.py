@@ -185,7 +185,7 @@ def p_ASSIGNMENT(p):
     assign_to = shared.assign_to
     expression = shared.arithmetic_operation
     quad_generator.gen_assign_quadruples(expression, assign_to)
-    shared.arithmetic_operation = []
+    shared.arithmetic_operation.clear()
     
 
 def p_FUNCTION_CALL(p):
@@ -237,9 +237,13 @@ def p_FUNCTION_RETURN(p):
     
 
 def p_IF_RULE(p):
-    'IF_RULE : IF LPAREN EXPRESSION RPAREN LCURLY STATEMENTS RCURLY IF_AUX'
+    'IF_RULE : IF LPAREN EXPRESSION_AUX_IF RPAREN LCURLY STATEMENTS RCURLY IF_AUX'
+
+
+def p_EXPRESSION_AUX_IF(p):
+    'EXPRESSION_AUX_IF : EXPRESSION'
     quad_generator.gen_if_quadruples(shared.arithmetic_operation)
-    shared.arithmetic_operation = ''
+    shared.arithmetic_operation.clear()
 
 def p_IF_AUX(p):
     '''IF_AUX : ELSE LCURLY STATEMENTS RCURLY
