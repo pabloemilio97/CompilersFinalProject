@@ -1,4 +1,5 @@
-
+import symbol_table
+import error
 
 # Third Level
 int_int_operator_map = {
@@ -166,3 +167,16 @@ cube = {
 def find_return_type(type1, type2, operator):
     return cube[type1][type2][operator]
 
+def check_type(input, scope):
+    if len(input) == 1 and not input.isnumeric():
+        return 'char'
+    elif input in symbol_table.func_map[scope]['vars']:
+        return symbol_table.func_map[scope]['vars'][input]['type']
+    elif input.isdigit():
+        return 'int'
+    else:
+        try: 
+            float(input)
+            return 'float'
+        except:
+            error.gen_err(f'no se puede hacer operaciones con input "{input}"')
