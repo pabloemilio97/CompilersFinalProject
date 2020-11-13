@@ -348,8 +348,6 @@ def p_VAR_AUX(p):
     var_name = p[1]
     if var_name not in current_func_map_vars:
         error.gen_err(f'Tratando de asignar variable "{var_name}" que no existe')
-    elif current_func_map_vars[shared.assign_to]['type'] != current_func_map_vars[var_name]['type']:
-        error.gen_err(f'Tratando de asignar diferentes tipos, variable {shared.assign_to} a {var_name}')
     else:
         p[0] = var_name
     
