@@ -260,8 +260,21 @@ def p_RCURLY_AUX_ELSE(p):
     quad_generator.gen_endelse_quadruples()   
         
 def p_WHILE_RULE(p):
-    'WHILE_RULE : WHILE LPAREN EXPRESSION RPAREN LCURLY STATEMENTS RCURLY'
-    
+    'WHILE_RULE : WHILE_WORD_AUX LPAREN WHILE_EXPRESSION_AUX RPAREN LCURLY STATEMENTS RCURLY_WHILE_AUX'
+
+def p_WHILE_WORD_AUX(p):
+    'WHILE_WORD_AUX : WHILE'
+    shared.jump_stack.append(quad_generator.quad_pos())
+
+def p_WHILE_EXPRESSION_AUX(p):
+    'WHILE_EXPRESSION_AUX : EXPRESSION'
+    quad_generator.gen_while_quadruples(shared.arithmetic_operation)
+    shared.arithmetic_operation.clear()
+
+def p_RCURLY_WHILE_AUX(p):
+    'RCURLY_WHILE_AUX : RCURLY'
+    quad_generator.assign_gotoF_quadruple_pos()
+    quad_generator.gen_while_goto_quadruple()
 
 def p_FOR_RULE(p):
     'FOR_RULE : FOR LPAREN VAR EQUALS EXPRESSION TO EXPRESSION RPAREN LCURLY STATEMENTS RCURLY'
@@ -397,7 +410,7 @@ elif (aux == 2):
     data = '''prog 1'''
 
 elif (aux == 3):
-    f = open("test.txt", "r")
+    f = open("test_quad.txt", "r")
     if f.mode == 'r':
         data = f.read()
     else:
