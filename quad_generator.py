@@ -18,6 +18,17 @@ operations = {
     '*': 2,
 }
 
+def increment_curr_register():
+    """
+    Return curr_register and add 1 to it.
+    Useful so we don't have to declare curr_register as global 
+    in every function that uses it.
+    Also because we usually have to add 1 each time we consult curr_register.
+    """
+    global curr_register
+    old_value = curr_register
+    curr_register += 1
+    return old_value
 
 def quad_pos():
     return str(len(quadruples))
@@ -60,18 +71,41 @@ def gen_while_quadruples(expression):
         pass
     else:
         gen_arithmetic_quadruples(expression)
-        # here we know the last quad is the result of the while expression
-    gen_quad('gotoF', '', quadruples[-1][-1], '')
+    # here we know the last quad is the result of the while expression
+    gen_quad('gotoF', quadruples[-1][-1], '', '')
 
 
-def while_pop_two_jump_stack():
+def _gen_endloop_quadruples():
     jump_to_gotoF = int(jump_stack.pop())
     jump_to_goto = jump_stack.pop()
     gen_quad('goto', '', '', jump_to_goto, False)
     quadruples[jump_to_gotoF][4] = quad_pos()
+
+def gen_endwhile_quadruples():
+    _gen_endloop_quadruples()
+    
+def gen_endfor_quadruples(variable):
+    gen_quad('+', variable, '1', f't{increment_curr_register()}')
+    _gen_endloop_quadruples()
+
+def gen_for_quadruples(variable, expression):
+    """
+    variable -> variable to compare to
+    expression -> when variable reaches this value, cycle ends
+    """
+    if len(expression) == 1:
+        expression_result = expression[0]
+    else:
+        gen_arithmetic_quadruples(expression)
+        expression_result = quadruples[-1][-1]
+    
+    gen_quad('<', variable, expression_result, f't{increment_curr_register()}')
+    comparison_result = quadruples[-1][-1]
+    gen_quad('gotoF', comparison_result, '', '')
+
+
     
 def gen_arithmetic_quadruples(expression):
-    global curr_register
     for value in expression:
         # print(value)
         # print('operations stack: ', operations_stack)
@@ -87,9 +121,9 @@ def gen_arithmetic_quadruples(expression):
                 while top(operations_stack) and operations[top(operations_stack)] >= operations[value]: # keep checking current operation with previous elements in stack
                     second_operand = operands_stack.pop()
                     first_operand = operands_stack.pop()
+                    curr_register = increment_curr_register()
                     gen_quad(operations_stack.pop(), first_operand, second_operand, f't{curr_register}')
                     operands_stack.append(f't{curr_register}')
-                    curr_register += 1
                 operations_stack.append(value)
             else: # previous operation is less important than current one
                 operations_stack.append(value)
@@ -102,13 +136,12 @@ def gen_arithmetic_quadruples(expression):
     flush_remaining(operations_stack, operands_stack)
 
 def flush_remaining(operations_stack, operands_stack):
-    global curr_register
     while top(operations_stack):
         second_operand = operands_stack.pop()
         first_operand = operands_stack.pop()
+        curr_register = increment_curr_register()
         gen_quad(operations_stack.pop(), first_operand, second_operand, f't{curr_register}')
         operands_stack.append(f't{curr_register}')
-        curr_register += 1
 
 
 def top(stack):

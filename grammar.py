@@ -273,11 +273,35 @@ def p_WHILE_EXPRESSION_AUX(p):
 
 def p_RCURLY_WHILE_AUX(p):
     'RCURLY_WHILE_AUX : RCURLY'
-    quad_generator.while_pop_two_jump_stack()
+    quad_generator.gen_endwhile_quadruples()
 
 def p_FOR_RULE(p):
-    'FOR_RULE : FOR LPAREN VAR EQUALS EXPRESSION TO EXPRESSION RPAREN LCURLY STATEMENTS RCURLY'
+    'FOR_RULE : FOR LPAREN ASSIGNMENT TO_WORD_AUX END_FOR_AUX'
+
+def p_END_FOR_AUX(p):
+    'END_FOR_AUX : FOR_EXPRESSION_AUX RPAREN LCURLY STATEMENTS RCURLY'
+    """
+    This works because all rules present are executed before the following code.
+    Since the last rule that will be executed is RCURLY, it is OK to generate the
+    quadruples belonging to the end of the for loop.
+    """
+    variable = p[1]
+    quad_generator.gen_endfor_quadruples(variable)
     
+
+def p_FOR_EXPRESSION_AUX(p):
+    'FOR_EXPRESSION_AUX : EXPRESSION'
+    # The last quadruple that has been generated is the assignment
+    variable = shared.quadruples[-1][-1]
+    quad_generator.gen_for_quadruples(variable, shared.arithmetic_operation)
+    shared.arithmetic_operation.clear()
+    # To know which variable corresponds to the for loop scope
+    p[0] = variable
+    
+
+def p_TO_WORD_AUX(p):
+    'TO_WORD_AUX : TO'
+    shared.jump_stack.append(quad_generator.quad_pos())
 
 def p_EXPRESSION(p):
     'EXPRESSION : AND_EXPRESSION EXPRESSION_AUX'
@@ -409,7 +433,7 @@ elif (aux == 2):
     data = '''prog 1'''
 
 elif (aux == 3):
-    f = open("test_quad.txt", "r")
+    f = open("test.txt", "r")
     if f.mode == 'r':
         data = f.read()
     else:

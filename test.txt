@@ -4,31 +4,11 @@ let int b;
 let int c;
 let int d;
 main(){
-    if(a + b > c * d){
-        a = b + d;
-        if(a > b){
-            if(b > c){
-
-            }
-            else{
-                a = 10;
-            }
-            c = 15;
-        }
-    }
-    else{
-        a = d - c;
-        if(c > d){
-
-        }
-        else{
+    for(a=1 to 100){
+        b = 123 + 123;
+        for(c=2 to 99){
             d = 10;
         }
     }
-    b = a * c + d;
-    
-    if(a + b > c * d){
-        a = b + d;
-    }
-    b = a * c;
+    d = 23;
 }
