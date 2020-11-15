@@ -71,8 +71,8 @@ def assign_gotoF_quadruple_pos():
     quadruples[jump_to][4] = next_quad_pos()
 
 def gen_while_goto_quadruple():
-    jump_to = int(jump_stack.pop())
-    gen_quad('goto', '', '', jump_to)
+    jump_to = jump_stack.pop()
+    gen_quad('goto', '', '', jump_to, False)
     
 def gen_arithmetic_quadruples(expression):
     global curr_register
@@ -121,9 +121,9 @@ def top(stack):
     else:
         return stack[-1]
 
-def gen_quad(q1, q2, q3, q4):
+def gen_quad(q1, q2, q3, q4, shouldAppendToJump=True):
     quad = [quad_pos(), q1, q2, q3, q4]
-    if q1 in jump_operations:
+    if q1 in jump_operations and shouldAppendToJump:
         jump_stack.append(quad_pos())
     quadruples.append(quad)
 
