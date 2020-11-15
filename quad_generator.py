@@ -22,9 +22,6 @@ operations = {
 def quad_pos():
     return str(len(quadruples))
 
-def next_quad_pos():
-    return str(len(quadruples) + 1)
-
 def gen_assign_quadruples(expression, assign_to):
     if len(expression) == 1:
         gen_quad('=', expression[0], '', assign_to)
@@ -66,13 +63,12 @@ def gen_while_quadruples(expression):
         # here we know the last quad is the result of the while expression
     gen_quad('gotoF', '', quadruples[-1][-1], '')
 
-def assign_gotoF_quadruple_pos():
-    jump_to = int(jump_stack.pop())
-    quadruples[jump_to][4] = next_quad_pos()
 
-def gen_while_goto_quadruple():
-    jump_to = jump_stack.pop()
-    gen_quad('goto', '', '', jump_to, False)
+def while_pop_two_jump_stack():
+    jump_to_gotoF = int(jump_stack.pop())
+    jump_to_goto = jump_stack.pop()
+    gen_quad('goto', '', '', jump_to_goto, False)
+    quadruples[jump_to_gotoF][4] = quad_pos()
     
 def gen_arithmetic_quadruples(expression):
     global curr_register

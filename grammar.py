@@ -273,8 +273,7 @@ def p_WHILE_EXPRESSION_AUX(p):
 
 def p_RCURLY_WHILE_AUX(p):
     'RCURLY_WHILE_AUX : RCURLY'
-    quad_generator.assign_gotoF_quadruple_pos()
-    quad_generator.gen_while_goto_quadruple()
+    quad_generator.while_pop_two_jump_stack()
 
 def p_FOR_RULE(p):
     'FOR_RULE : FOR LPAREN VAR EQUALS EXPRESSION TO EXPRESSION RPAREN LCURLY STATEMENTS RCURLY'
