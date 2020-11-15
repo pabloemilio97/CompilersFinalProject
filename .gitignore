@@ -1,5 +1,4 @@
 parsetab.py
-test_quad.txt
 *.out
 **/__pycache__
 **/.vscode
