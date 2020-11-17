@@ -1,39 +1,26 @@
 program programa;
-let int x;
+let int globalInt;
 
 void function myFunc(int x, char y, float z)
 let int A;
-let int B;
-let int C;
-let int D;
 {
     A = B + A;
-    while (A > B * C)
-    {
-        B = C + D;
-        while (C < D)
-        {
-            A = C;
-        }
-    }
-    D = C;
 }
 
 
 int function mySecondFunc(int x2, char y2, float z2)
-let int tmpMySecondFuncVar;
-let char tmpMySecondFuncVar2;
-let float tmpMySecondFuncVar3;
+let int E;
 {
+    E = 20 + 40;
 }
 
-char function myThirdFunc(int x3, char y3, float z3)
-let int tmpMyThirdFuncVar;
-let char tmpMyThirdFuncVar2;
-let float tmpMyThirdFuncVar3;
+int function myThirdFunc(int x3, char y3, float z3)
+let int F;
 {
+    F = 50 + 100;
 }
 
 
 main() {
+    globalInt = 10;
 }
