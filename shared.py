@@ -9,3 +9,4 @@ jump_stack = []
 jump_operations = {
     'gotoF', 'gotoT', 'goto'
 }
+param_num = 1
