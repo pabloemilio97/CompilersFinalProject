@@ -78,9 +78,16 @@ def p_PROGRAM_RULE(p):
 def p_PROGRAM_RULE_AUX(p):
     'PROGRAM_RULE_AUX : PROGRAM'
     symbol_table.insert_function('global')
+    shared.jump_stack.append('0')
+    quad_generator.gen_quad('goto', 'main', '', '') # this one will contain the main register to know where to start
 
 def p_MAIN_RULE(p):
-    'MAIN_RULE : MAIN LPAREN RPAREN LCURLY STATEMENTS RCURLY'
+    'MAIN_RULE : MAIN_AUX LPAREN RPAREN LCURLY STATEMENTS RCURLY'
+
+def p_MAIN_AUX(p):
+    'MAIN_AUX : MAIN'
+    main_pos = int(shared.jump_stack.pop())
+    shared.quadruples[main_pos][-1] = quad_generator.quad_pos()
 
 def p_BODY(p):
     '''BODY : FUNCTION_RULE BODY
@@ -98,6 +105,7 @@ def p_PARAM_TYPE_ID_AUX(p):
     param_type = p[1]
     param_name = p[2]
     symbol_table.insert_param(shared.scope, param_name, param_type)
+    symbol_table.insert_quadruple_reg(shared.scope, quad_generator.quad_pos())
 
 def p_PARAM_AUX(p):
     '''PARAM_AUX : COMMA PARAM_AUX2
@@ -121,6 +129,7 @@ def p_FUNCTION_AUX(p):
 
 def p_FUNCTION_BODY(p):
     '''FUNCTION_BODY : VARS LCURLY STATEMENTS FUNCTION_BODY_AUX RCURLY'''
+    quad_generator.gen_endfunc_quadruple()
 
 def p_FUNCTION_BODY_AUX(p):
     '''FUNCTION_BODY_AUX : FUNCTION_RETURN
@@ -189,16 +198,39 @@ def p_ASSIGNMENT(p):
     
 
 def p_FUNCTION_CALL(p):
-    'FUNCTION_CALL : ID LPAREN FUNCTION_CALL_AUX RPAREN'
+    'FUNCTION_CALL : FUNCTION_CALL_ID_AUX LPAREN FUNCTION_CALL_AUX RPAREN'
+    function_name = p[1]
+    quad_generator.gen_quad('GOSUB', '', '', function_name)
 
+def p_FUNCTION_CALL_ID_AUX(p):
+    'FUNCTION_CALL_ID_AUX : ID'
+    function_name = p[1]
+    if function_name not in symbol_table.func_map:
+        error.gen_err(f'Haciendo llamada a funcion que no existe "{function_name}"')
+    else:
+        quad_generator.gen_quad('ERA', '', '', function_name) # quadruple ERA with func name, this symbol table should contain the memory needed for the func
+    # pass the func name to previous rule
+    p[0] = function_name
 
 def p_FUNCTION_CALL_AUX(p):
-    '''FUNCTION_CALL_AUX : EXPRESSION FUNCTION_CALL_AUX2
+    '''FUNCTION_CALL_AUX : PARAM_EXPRESSION FUNCTION_CALL_AUX2
     | empty'''
-    
+    shared.param_num = 1
+
+
+def p_PARAM_EXPRESSION(p):
+    'PARAM_EXPRESSION : EXPRESSION'
+    expression = shared.arithmetic_operation
+    quad_generator.gen_arithmetic_quadruples(expression)
+    # here we have to validate that what ends up in the last tmp value register, is the same type as the parameter
+    last_quadruple_index = int(quad_generator.quad_pos()) - 1
+    param_result = shared.quadruples[last_quadruple_index][-1]
+    quad_generator.gen_quad('PARAM', param_result, '', f'param{str(shared.param_num)}')
+    shared.param_num += 1
+    shared.arithmetic_operation.clear()
 
 def p_FUNCTION_CALL_AUX2(p):
-    '''FUNCTION_CALL_AUX2 : COMMA EXPRESSION FUNCTION_CALL_AUX2
+    '''FUNCTION_CALL_AUX2 : COMMA PARAM_EXPRESSION FUNCTION_CALL_AUX2
     | empty'''
     
 
@@ -226,7 +258,7 @@ def p_VAR(p):
     | ID LBRACKET EXPRESSION RBRACKET LBRACKET EXPRESSION RBRACKET'''
     shared.assign_to = ''
     var_name = p[1]
-    if var_name not in symbol_table.func_map[shared.scope]['vars']:
+    if var_name not in symbol_table.func_map[shared.scope]['vars'] and var_name not in symbol_table.func_map['global']['vars']:
         error.gen_err(f'Asignando valor a variable "{var_name}" que no existe')
     shared.assign_to = var_name
     p[0] = var_name
@@ -396,7 +428,11 @@ def p_VAR_AUX(p):
     'VAR_AUX : ID'
     current_func_map_vars = symbol_table.func_map[shared.scope]['vars']
     var_name = p[1]
-    if var_name not in current_func_map_vars:
+    is_param = False
+    for param_name, _ in symbol_table.func_map[shared.scope]['params']:
+        if var_name == param_name:
+            is_param =  True
+    if var_name not in current_func_map_vars and not is_param and not var_name in symbol_table.func_map['global']:
         error.gen_err(f'Tratando de asignar variable "{var_name}" que no existe')
     else:
         p[0] = var_name
@@ -451,5 +487,5 @@ parser.parse(data)
 
 for q in shared.quadruples:
     print(q)
-# print(symbol_table.func_map['myFunc']['vars'])
+print(symbol_table.func_map)
 # symbol_table.print_func_map()

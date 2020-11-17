@@ -1,4 +1,4 @@
-from error import err
+from error import err, gen_err
 
 
 # Class used to instantiate while code is being parsed, used for cuadruplos
@@ -19,6 +19,7 @@ class Variable:
 # 'type': type,
 # 'vars': {}
 # 'params': []
+# 'quadruple_reg' : '1'
 
 func_map = {}
 
@@ -28,6 +29,14 @@ empty_values = {
     'float': 0.0,
     'char': '',
 }
+
+def insert_quadruple_reg(func_name, quadruple_reg):
+    if func_name not in func_map:
+        gen_err(f'Tratando de agregar # de cuadruplo a funcion que no existe "{func_name}"')
+    else:
+        func_map[func_name]['quadruple_reg'] = quadruple_reg
+
+
 
 def insert_function(func_name, type='void'):
     # check if already exists

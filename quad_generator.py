@@ -106,6 +106,10 @@ def gen_for_quadruples(variable, expression):
     gen_quad('gotoF', comparison_result, '', '')
 
 
+def gen_endfunc_quadruple():
+    gen_quad('ENDFUNC', '', '', '')
+
+
     
 def gen_arithmetic_quadruples(expression):
     for value in expression:
