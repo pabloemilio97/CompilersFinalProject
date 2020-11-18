@@ -8,7 +8,7 @@ import shared
 import symbol_table
 import error
 import quad_generator
-import memory
+from memory import memory
 
 #pending: add string for declaration?
 reserved = {

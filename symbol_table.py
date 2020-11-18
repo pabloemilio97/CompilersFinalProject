@@ -51,38 +51,37 @@ def insert_function(func_name, type='void'):
             'params': [],
         }
 
-def _insert_local_var(func_name, var_name, type=None, value=None):
-    # Inserts local variable for a function
-    if var_name in func_map[func_name]['vars'].keys(): # already declared in same function
-        err('variable ' + var_name + ' already declared', var_name)
-    elif var_name in func_map['global']['vars'].keys():
-        err('variable ' + var_name + ' already declared globally', func_name) # var already declared globally
-    else:
-        if (value == None): # empty declaration gives empty value
-            value = empty_values[type]
-        # insert into vars map
-        func_map[func_name]['vars'][var_name] = { 
-            'type': type,
-            'value': value,
-            'memory_index': memory.local_memory.push(type, value),
-        }
-
-def _insert_global_var(global_var_name, type, value=None):
-    # Insert global variable in function_map
-    if global_var_name in func_map['global']['vars'].keys():
-        err('variable already declared globally', global_var_name)
+def _insert_var(scope, segment, var_name, type=None, value=None):
+    if var_name in func_map[scope]['vars'].keys():
+        err(f'variable already declared in {scope} scope', var_name)
     else:
         if (value == None):
             value = empty_values[type]
-        func_map['global']['vars'][global_var_name] = {
+        func_map[scope]['vars'][var_name] = {
             'type': type,
             'value': value,
-            'memory_index' : memory.global_memory.push(type, value),
+            'memory_index' : segment.push(type, value),
         }
+
+def _insert_generic_local_var(func_name, segment, var_name, type=None, value=None):
+    if var_name in func_map['global']['vars'].keys():
+        # var already declared globally
+        err('variable ' + var_name + ' already declared globally', func_name)
+    _insert_var(func_name, segment, var_name, type, value)
+
+def _insert_local_var(func_name, var_name, type=None, value=None):
+    _insert_generic_local_var(func_name, memory.local_memory, var_name, type, value)
+
+def insert_tmp_var(func_name, var_name, type=None, value=None):
+    _insert_generic_local_var(func_name, memory.tmp_memory, var_name, type, value)
+
+def _insert_global_var(var_name, type, value=None):
+    _insert_var("global", memory.global_memory, var_name, type, value)
 
 def insert_var(scope, var_name, type=None, value=None):
     if scope == "global":
         _insert_global_var(var_name, type, value)
+    # Is local
     else:
         _insert_local_var(scope, var_name, type, value)
 

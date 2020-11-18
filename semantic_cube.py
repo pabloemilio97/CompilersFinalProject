@@ -1,5 +1,6 @@
 import symbol_table
 import error
+import shared
 
 # Third Level
 int_int_operator_map = {
@@ -164,14 +165,21 @@ cube = {
     "char": char_map,
 }
 
-def find_return_type(type1, type2, operator):
-    return cube[type1][type2][operator]
+def _find_return_type(type1, type2, operator):
+    res = cube[type1][type2][operator]
+    return res
 
-def check_type(input, scope):
+def find_return_type(input1, input2, operator):
+    type1 = check_type(input1)
+    type2 = check_type(input2)
+    res = _find_return_type(type1, type2, operator)
+    return res
+
+def check_type(input):
     if len(input) == 1 and not input.isnumeric():
         return 'char'
-    elif input in symbol_table.func_map[scope]['vars']:
-        return symbol_table.func_map[scope]['vars'][input]['type']
+    elif input in symbol_table.func_map[shared.scope]['vars']:
+        return symbol_table.func_map[shared.scope]['vars'][input]['type']
     elif input.isdigit():
         return 'int'
     else:
