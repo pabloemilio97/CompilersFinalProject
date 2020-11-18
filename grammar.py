@@ -244,12 +244,27 @@ def p_READ_AUX(p):
     
 
 def p_WRITE_RULE(p):
-    'WRITE_RULE : WRITE LPAREN EXPRESSION WRITE_AUX RPAREN'
+    'WRITE_RULE : WRITE LPAREN WRITE_EXPRESSION_AUX WRITE_AUX RPAREN'
     
 
 def p_WRITE_AUX(p):
-    '''WRITE_AUX : COMMA EXPRESSION WRITE_AUX 
+    '''WRITE_AUX : COMMA WRITE_EXPRESSION_AUX WRITE_AUX 
     | empty'''
+
+
+def p_WRITE_EXPRESSION_AUX(p):
+    'WRITE_EXPRESSION_AUX : EXPRESSION'
+    expression = shared.arithmetic_operation
+    print(expression)
+    if len(expression) == 1:
+        quad_generator.gen_quad('WRITE', '', '', expression[0])
+    else:
+        quad_generator.gen_arithmetic_quadruples(expression)
+        shared.arithmetic_operation.clear()
+        last_quad_index = int(quad_generator.quad_pos()) - 1
+        last_result = shared.quadruples[last_quad_index][-1]
+        quad_generator.gen_quad('WRITE', '', '', last_result)
+    shared.arithmetic_operation.clear()
     
 
 def p_VAR(p):
@@ -266,6 +281,16 @@ def p_VAR(p):
 
 def p_FUNCTION_RETURN(p):
     'FUNCTION_RETURN : RETURN EXPRESSION SEMICOLON'
+    expression = shared.arithmetic_operation
+    if len(expression) == 1:
+        quad_generator.gen_quad('RETURN', '', '', expression[0])
+    else:
+        quad_generator.gen_arithmetic_quadruples(expression)
+        shared.arithmetic_operation.clear()
+        last_quad_index = int(quad_generator.quad_pos()) - 1
+        last_result = shared.quadruples[last_quad_index][-1]
+        quad_generator.gen_quad('RETURN', '', '', last_result)
+
     
 
 def p_IF_RULE(p):

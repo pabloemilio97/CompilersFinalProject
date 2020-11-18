@@ -1,11 +1,12 @@
 program programa;
 let int globalInt;
 
-void function myFunc(int x, int y)
+int function myFunc(int x, int y)
 let int A;
 let int B;
 {
     A = x + y;
+    return 20;
 }
 
 
