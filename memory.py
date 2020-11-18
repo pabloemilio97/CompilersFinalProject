@@ -12,7 +12,15 @@ class SegmentBounds:
         self.FLOAT_MIN += base_dir
         self.FLOAT_MAX += base_dir
         self.CHAR_MIN += base_dir
-        self.CHAR_MAX += base_dir    
+        self.CHAR_MAX += base_dir
+
+    def __str__(self):
+        s = ""
+        s += f"int limits: {self.INT_MIN}, {self.INT_MAX}\n"
+        s += f"float limits: {self.FLOAT_MIN}, {self.FLOAT_MAX}\n"
+        s += f"char limits: {self.CHAR_MIN}, {self.CHAR_MAX}\n\n"
+        return s
+
 
 class Segment:
     """
@@ -20,46 +28,45 @@ class Segment:
     total memory. For example, we'll have an instance for global memory,
     another one for local memory, another one for temp memory.
     """
-    int_index = 0
-    float_index = 0
-    char_index = 0
-    int_chunk = {}
-    float_chunk = {}
-    char_chunk = {}
-
-    index_assignments = {
-        "int": int_index,
-        "float": float_index,
-        "char": char_index,
-    }
-    chunk_assignments = {
-        "int": int_chunk,
-        "float": float_chunk,
-        "char": char_chunk,
-    }
-
     def __init__(self, segment_bounds):
         self.segment_bounds = segment_bounds
         self.int_index = segment_bounds.INT_MIN
         self.float_index = segment_bounds.FLOAT_MIN
         self.char_index = segment_bounds.CHAR_MIN
+
+        # Helps for determining in which chunk to push to
+        self.chunks = {
+            "int": {},
+            "float": {},
+            "char": {},
+        }
     
     def push(self, type, value):
         """
         Add variable to memory, increment current index.
         Return assigned memory index.
         """
-        index = self.index_assignments[type]
-        chunk = self.chunk_assignments[type]
+        if type == "int":
+            self.int_index += 1
+            index = self.int_index - 1
+        elif type == "float":
+            self.float_index += 1
+            index = self.float_index - 1
+        elif type == "char":
+            self.char_index += 1
+            index = self.char_index - 1
+        else:
+            raise TypeError
+
+        chunk = self.chunks[type]
         chunk[index] = value
-        self.index_assignments[type] += 1
         return index
     
     def get_value(self, index):
         """
         Get value from memory at the given index.
         """
-        for chunk in self.chunk_assignments.values():
+        for chunk in self.chunks.values():
             try:
                 return chunk[index]
             except KeyError:
@@ -73,15 +80,32 @@ class Segment:
         self.int_index = self.segment_bounds.INT_MIN
         self.float_index = self.segment_bounds.FLOAT_MIN
         self.char_index = self.segment_bounds.CHAR_MIN
-        self.int_chunk = {}
-        self.float_chunk = {}
-        self.char_chunk = {}
+        self.chunks["int"] = {}
+        self.chunks["float"] = {}
+        self.chunks["char"] = {}
+    
+    def __str__(self):
+        s = ""
+        s += str(self.segment_bounds)
+        for type, chunk in self.chunks.items():
+            s += f"{type} chunk -> {str(chunk)}\n"
+        return s
 
 class Memory:
+    # static variables, balonging to class and not to object
     global_memory = Segment(SegmentBounds(1000))
     local_memory = Segment(SegmentBounds(4000))
     tmp_memory = Segment(SegmentBounds(7000))
     constant_memory = Segment(SegmentBounds(10000))
+
+    # For debugging purposes
+    def __str__(self):
+        g = f"global_memory\n-------------------\n{self.global_memory}\n"
+        l = f"local_memory\n-------------------\n{self.local_memory}\n"
+        t = f"tmp_memory\n-------------------\n{self.tmp_memory}\n"
+        c = f"constant_memory\n-------------------\n{self.constant_memory}\n"
+        return f"{g}\n{l}\n{t}\n{c}"
+
 
 memory = Memory()
     

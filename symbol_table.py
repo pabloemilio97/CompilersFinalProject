@@ -107,11 +107,14 @@ def print_func_map(map=func_map, indent=0):
 # insert_global_var('z', 'int', '30')
 
 
-# insert_local_var('main', 'a', 'int', '10')
-# insert_local_var('main', 'b', 'int', '20')
-# insert_local_var('main', 'c', 'int', '30')
+# insert_local_var('main', 'a', 'float', '10')
+# insert_local_var('main', 'b', 'float', '20')
+# insert_local_var('main', 'c', 'char', 'z')
 
 # insert_param('main', 'numero', 'int')
 
 # print(func_map['main']['params'])
+
+# # memory testing
+# print(memory)
 
