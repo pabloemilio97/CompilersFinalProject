@@ -215,18 +215,13 @@ def p_FUNCTION_CALL_ID_AUX(p):
 def p_FUNCTION_CALL_AUX(p):
     '''FUNCTION_CALL_AUX : PARAM_EXPRESSION FUNCTION_CALL_AUX2
     | empty'''
-    shared.param_num = 1
+    shared.numerics["param_num"] = 1
 
 
 def p_PARAM_EXPRESSION(p):
     'PARAM_EXPRESSION : EXPRESSION'
     expression = shared.arithmetic_operation
-    quad_generator.gen_arithmetic_quadruples(expression)
-    # here we have to validate that what ends up in the last tmp value register, is the same type as the parameter
-    last_quadruple_index = int(quad_generator.quad_pos()) - 1
-    param_result = shared.quadruples[last_quadruple_index][-1]
-    quad_generator.gen_quad('PARAM', param_result, '', f'param{str(shared.param_num)}')
-    shared.param_num += 1
+    quad_generator.gen_param_quadruples(expression)
     shared.arithmetic_operation.clear()
 
 def p_FUNCTION_CALL_AUX2(p):
@@ -255,14 +250,7 @@ def p_WRITE_AUX(p):
 def p_WRITE_EXPRESSION_AUX(p):
     'WRITE_EXPRESSION_AUX : EXPRESSION'
     expression = shared.arithmetic_operation
-    if len(expression) == 1:
-        quad_generator.gen_quad('WRITE', '', '', expression[0])
-    else:
-        quad_generator.gen_arithmetic_quadruples(expression)
-        shared.arithmetic_operation.clear()
-        last_quad_index = int(quad_generator.quad_pos()) - 1
-        last_result = shared.quadruples[last_quad_index][-1]
-        quad_generator.gen_quad('WRITE', '', '', last_result)
+    quad_generator.gen_write_quadruples(expression)
     shared.arithmetic_operation.clear()
     
 
@@ -281,14 +269,8 @@ def p_VAR(p):
 def p_FUNCTION_RETURN(p):
     'FUNCTION_RETURN : RETURN EXPRESSION SEMICOLON'
     expression = shared.arithmetic_operation
-    if len(expression) == 1:
-        quad_generator.gen_quad('RETURN', '', '', expression[0])
-    else:
-        quad_generator.gen_arithmetic_quadruples(expression)
-        shared.arithmetic_operation.clear()
-        last_quad_index = int(quad_generator.quad_pos()) - 1
-        last_result = shared.quadruples[last_quad_index][-1]
-        quad_generator.gen_quad('RETURN', '', '', last_result)
+    quad_generator.gen_return_quadruples(expression)
+    shared.arithmetic_operation.clear()
 
     
 

@@ -15,6 +15,7 @@ let int E;
 {
     E = 20 + 40;
     myFunc(E * 2, E + 20);
+    myFunc(2, E + 20);
 }
 
 void function myThirdFunc(int x3, char y3, float z3)

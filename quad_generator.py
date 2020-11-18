@@ -1,6 +1,6 @@
 import semantic_cube
 import symbol_table
-from shared import quadruples, operands_stack, operations_stack, jump_stack, curr_register, jump_operations
+from shared import quadruples, operands_stack, operations_stack, jump_stack, jump_operations, numerics
 
 cube = semantic_cube.cube
 func_map = symbol_table.func_map
@@ -21,13 +21,10 @@ operations = {
 def increment_curr_register():
     """
     Return curr_register and add 1 to it.
-    Useful so we don't have to declare curr_register as global 
-    in every function that uses it.
-    Also because we usually have to add 1 each time we consult curr_register.
+    We usually have to add 1 each time we consult curr_register.
     """
-    global curr_register
-    old_value = int(curr_register)
-    curr_register = str(old_value + 1)
+    old_value = int(numerics["curr_register"])
+    numerics["curr_register"] = str(old_value + 1)
     return f"t{old_value}"
 
 def quad_pos():
@@ -46,8 +43,8 @@ def gen_if_quadruples(expression):
         pass
     else:
         gen_arithmetic_quadruples(expression)
-    # here we know that last quad has the result of if expression
-    gen_quad('gotoF', quadruples[-1][-1], '', '')
+        # here we know that last quad has the result of if expression
+        gen_quad('gotoF', quadruples[-1][-1], '', '')
 
 def gen_else_quadruples():
     # The quadruple number to which the if's gotoF will go to
@@ -71,8 +68,8 @@ def gen_while_quadruples(expression):
         pass
     else:
         gen_arithmetic_quadruples(expression)
-    # here we know the last quad is the result of the while expression
-    gen_quad('gotoF', quadruples[-1][-1], '', '')
+        # here we know the last quad is the result of the while expression
+        gen_quad('gotoF', quadruples[-1][-1], '', '')
 
 
 def _gen_endloop_quadruples():
@@ -109,6 +106,30 @@ def gen_for_quadruples(variable, expression):
 def gen_endfunc_quadruple():
     gen_quad('ENDFUNC', '', '', '')
 
+def _gen_generic_quadruples(operation, expression):
+    if len(expression) == 1:
+        gen_quad(operation, '', '', expression[0])
+    else:
+        gen_arithmetic_quadruples(expression)
+        expression_result = quadruples[-1][-1]
+        gen_quad(operation, '', '', expression_result)
+
+def gen_return_quadruples(expression):
+    _gen_generic_quadruples('RETURN', expression)
+
+def gen_write_quadruples(expression):
+    _gen_generic_quadruples('WRITE', expression)
+
+def gen_param_quadruples(expression):
+    str_param_num = f'param{str(numerics["param_num"])}'
+    if len(expression) == 1:
+        gen_quad('PARAM', expression[0], '', str_param_num)
+    else:
+        gen_arithmetic_quadruples(expression)
+        # here we have to validate that what ends up in the last tmp value register, is the same type as the parameter
+        param_result = quadruples[-1][-1]
+        gen_quad('PARAM', param_result, '', str_param_num)
+    numerics["param_num"] += 1
 
     
 def gen_arithmetic_quadruples(expression):
