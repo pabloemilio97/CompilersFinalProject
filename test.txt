@@ -27,4 +27,13 @@ let int F;
 
 main() {
     globalInt = 10;
+    if(1){
+        
+    }
+    else{
+        while(1 > 5){
+            
+        }
+    }
+
 }

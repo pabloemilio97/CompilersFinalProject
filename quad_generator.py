@@ -38,13 +38,16 @@ def gen_assign_quadruples(expression, assign_to):
         gen_quad('=', quadruples[-1][-1], '', assign_to)
 
 
-def gen_if_quadruples(expression):
+def _gen_condition_quadruples(expression):
     if len(expression) == 1:
-        pass
+        gen_quad('gotoF', expression[0], '', '')
     else:
         gen_arithmetic_quadruples(expression)
         # here we know that last quad has the result of if expression
         gen_quad('gotoF', quadruples[-1][-1], '', '')
+
+def gen_if_quadruples(expression):
+    _gen_condition_quadruples(expression)
 
 def gen_else_quadruples():
     # The quadruple number to which the if's gotoF will go to
@@ -64,12 +67,7 @@ def gen_endif_quadruples():
 
 
 def gen_while_quadruples(expression):
-    if len(expression) == 1:
-        pass
-    else:
-        gen_arithmetic_quadruples(expression)
-        # here we know the last quad is the result of the while expression
-        gen_quad('gotoF', quadruples[-1][-1], '', '')
+    _gen_condition_quadruples(expression)
 
 
 def _gen_endloop_quadruples():
