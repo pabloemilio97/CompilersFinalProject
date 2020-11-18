@@ -255,7 +255,6 @@ def p_WRITE_AUX(p):
 def p_WRITE_EXPRESSION_AUX(p):
     'WRITE_EXPRESSION_AUX : EXPRESSION'
     expression = shared.arithmetic_operation
-    print(expression)
     if len(expression) == 1:
         quad_generator.gen_quad('WRITE', '', '', expression[0])
     else:
