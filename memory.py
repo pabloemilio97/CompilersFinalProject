@@ -1,3 +1,5 @@
+import error
+
 class SegmentBounds:
     INT_MIN = 0
     INT_MAX = 999
@@ -61,7 +63,7 @@ class Segment:
         chunk = self.chunks[type]
         chunk[index] = value
         return index
-    
+
     def get_value(self, index):
         """
         Get value from memory at the given index.
@@ -97,6 +99,16 @@ class Memory:
     local_memory = Segment(SegmentBounds(4000))
     tmp_memory = Segment(SegmentBounds(7000))
     constant_memory = Segment(SegmentBounds(10000))
+    segments = [global_memory, local_memory, tmp_memory, constant_memory]
+
+    def get_value(self, index):
+        value = None
+        for segment in self.segments:
+            value = segment.get_value(index)
+            if value is not None:
+                return value
+        error.gen_err(f"Índice de memoria {index} no encontrado.")
+        return None
 
     # For debugging purposes
     def __str__(self):

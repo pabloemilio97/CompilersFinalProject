@@ -8,6 +8,7 @@ import shared
 import symbol_table
 import error
 import quad_generator
+import memory
 
 #pending: add string for declaration?
 reserved = {
@@ -148,7 +149,7 @@ def p_VARS(p):
     if len(p) == 6: # if it's declaring a variable
         var_name = p[3]
         var_type = p[2]
-        symbol_table.insert_local_var(shared.scope, var_name, var_type)
+        symbol_table.insert_var(shared.scope, var_name, var_type)
 
 def p_ID_LIST(p):
     '''ID_LIST : ID ID_LIST_AUX
@@ -494,4 +495,5 @@ parser.parse(data)
 for q in shared.quadruples:
     print(q)
 print(symbol_table.func_map)
+print(memory)
 # symbol_table.print_func_map()

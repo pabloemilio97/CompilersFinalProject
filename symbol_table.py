@@ -51,7 +51,7 @@ def insert_function(func_name, type='void'):
             'params': [],
         }
 
-def insert_local_var(func_name, var_name, type=None, value=None):
+def _insert_local_var(func_name, var_name, type=None, value=None):
     # Inserts local variable for a function
     if var_name in func_map[func_name]['vars'].keys(): # already declared in same function
         err('variable ' + var_name + ' already declared', var_name)
@@ -67,7 +67,7 @@ def insert_local_var(func_name, var_name, type=None, value=None):
             'memory_index': memory.local_memory.push(type, value),
         }
 
-def insert_global_var(global_var_name, type, value=None):
+def _insert_global_var(global_var_name, type, value=None):
     # Insert global variable in function_map
     if global_var_name in func_map['global']['vars'].keys():
         err('variable already declared globally', global_var_name)
@@ -79,6 +79,12 @@ def insert_global_var(global_var_name, type, value=None):
             'value': value,
             'memory_index' : memory.global_memory.push(type, value),
         }
+
+def insert_var(scope, var_name, type=None, value=None):
+    if scope == "global":
+        _insert_global_var(var_name, type, value)
+    else:
+        _insert_local_var(scope, var_name, type, value)
 
 
 def insert_param(func_name, param_name, param_type):
