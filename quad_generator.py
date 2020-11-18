@@ -1,6 +1,7 @@
 import semantic_cube
 import symbol_table
 from shared import quadruples, operands_stack, operations_stack, jump_stack, jump_operations, numerics
+from memory import memory
 
 cube = semantic_cube.cube
 func_map = symbol_table.func_map
@@ -103,6 +104,8 @@ def gen_for_quadruples(variable, expression):
 
 def gen_endfunc_quadruple():
     gen_quad('ENDFUNC', '', '', '')
+    memory.local_memory.flush()
+    memory.tmp_memory.flush()
 
 def _gen_generic_quadruples(operation, expression):
     if len(expression) == 1:
