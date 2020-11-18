@@ -1,5 +1,5 @@
 from error import err, gen_err
-from memory import global_dir, local_dir, tmp_dir, constant_dir
+from memory import memory
 
 
 # Class used to instantiate while code is being parsed, used for cuadruplos
@@ -63,7 +63,8 @@ def insert_local_var(func_name, var_name, type=None, value=None):
         # insert into vars map
         func_map[func_name]['vars'][var_name] = { 
             'type': type,
-            'value': value
+            'value': value,
+            'memory_index': memory.local_memory.push(type, value),
         }
 
 def insert_global_var(global_var_name, type, value=None):
@@ -76,9 +77,8 @@ def insert_global_var(global_var_name, type, value=None):
         func_map['global']['vars'][global_var_name] = {
             'type': type,
             'value': value,
-            'dir' : global_dir,
+            'memory_index' : memory.global_memory.push(type, value),
         }
-        global_dir += 1
 
 
 def insert_param(func_name, param_name, param_type):
