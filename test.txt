@@ -14,7 +14,6 @@ void function mySecondFunc(int x2, char y2, float z2)
 let int E;
 {
     E = 20 + 40;
-    myFunc(E * 2, E + 20);
     myFunc(2, E + 20);
 }
 

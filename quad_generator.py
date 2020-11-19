@@ -19,12 +19,13 @@ operations = {
     '*': 2,
 }
 
-def increment_curr_register():
+def increment_curr_register(operator, q2, q3):
     """
     Return curr_register and add 1 to it.
     We usually have to add 1 each time we consult curr_register.
     """
     old_value = int(numerics["curr_register"])
+    symbol_table.insert_tmp_value(operator, q2, q3, f't{old_value}')
     numerics["curr_register"] = str(old_value + 1)
     return f"t{old_value}"
 
@@ -81,7 +82,7 @@ def gen_endwhile_quadruples():
     _gen_endloop_quadruples()
     
 def gen_endfor_quadruples(variable):
-    curr_register = increment_curr_register()
+    curr_register = increment_curr_register('+', variable, '1')
     gen_quad('+', variable, '1', curr_register)
     gen_quad('=', curr_register, '', variable)
     _gen_endloop_quadruples()
@@ -97,7 +98,7 @@ def gen_for_quadruples(variable, expression):
         gen_arithmetic_quadruples(expression)
         expression_result = quadruples[-1][-1]
     
-    gen_quad('<', variable, expression_result, increment_curr_register())
+    gen_quad('<', variable, expression_result, increment_curr_register('<', variable, expression_result))
     comparison_result = quadruples[-1][-1]
     gen_quad('gotoF', comparison_result, '', '')
 
@@ -149,8 +150,9 @@ def gen_arithmetic_quadruples(expression):
                 while top(operations_stack) and operations[top(operations_stack)] >= operations[value]: # keep checking current operation with previous elements in stack
                     second_operand = operands_stack.pop()
                     first_operand = operands_stack.pop()
-                    curr_register = increment_curr_register()
-                    gen_quad(operations_stack.pop(), first_operand, second_operand, curr_register)
+                    operation = operations_stack.pop()
+                    curr_register = increment_curr_register(operation, first_operand, second_operand)
+                    gen_quad(operation, first_operand, second_operand, curr_register)
                     operands_stack.append(curr_register)
                 operations_stack.append(value)
             else: # previous operation is less important than current one
@@ -167,8 +169,9 @@ def flush_remaining(operations_stack, operands_stack):
     while top(operations_stack):
         second_operand = operands_stack.pop()
         first_operand = operands_stack.pop()
-        curr_register = increment_curr_register()
-        gen_quad(operations_stack.pop(), first_operand, second_operand, curr_register)
+        operator = operations_stack.pop()
+        curr_register = increment_curr_register(operator, first_operand, second_operand)
+        gen_quad(operator, first_operand, second_operand, curr_register)
         operands_stack.append(curr_register)
 
 

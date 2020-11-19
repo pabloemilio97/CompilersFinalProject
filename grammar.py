@@ -8,6 +8,7 @@ import shared
 import symbol_table
 import error
 import quad_generator
+import pprint
 from memory import memory
 
 #pending: add string for declaration?
@@ -422,6 +423,8 @@ def p_FACTOR(p):
         factor = p[1]
         shared.arithmetic_operation.append(factor)
 
+
+
 def p_LPAREN_AUX(p):
     'LPAREN_AUX : LPAREN'
     shared.arithmetic_operation.append(p[1])
@@ -435,11 +438,7 @@ def p_VAR_AUX(p):
     'VAR_AUX : ID'
     current_func_map_vars = symbol_table.func_map[shared.scope]['vars']
     var_name = p[1]
-    is_param = False
-    for param_name, _ in symbol_table.func_map[shared.scope]['params']:
-        if var_name == param_name:
-            is_param =  True
-    if var_name not in current_func_map_vars and not is_param and not var_name in symbol_table.func_map['global']:
+    if var_name not in current_func_map_vars and var_name not in symbol_table.func_map[shared.scope]['params'] and var_name not in symbol_table.func_map['global']['vars']:
         error.gen_err(f'Tratando de asignar variable "{var_name}" que no existe')
     else:
         p[0] = var_name
@@ -494,6 +493,7 @@ parser.parse(data)
 
 for q in shared.quadruples:
     print(q)
-print(symbol_table.func_map)
+pprint = pprint.PrettyPrinter(indent=4)
+pprint.pprint(symbol_table.func_map)
 print(memory)
 # symbol_table.print_func_map()

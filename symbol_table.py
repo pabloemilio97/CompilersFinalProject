@@ -1,5 +1,7 @@
 from error import err, gen_err
 from memory import memory
+import semantic_cube
+import shared
 
 
 # Class used to instantiate while code is being parsed, used for cuadruplos
@@ -19,24 +21,59 @@ class Variable:
 # func map contains
 # 'type': type,
 # 'vars': {}
-# 'params': []
+# 'params': {}
 # 'quadruple_reg' : '1'
 
 func_map = {}
 
 
 empty_values = {
-    'int': 0,
-    'float': 0.0,
+    'int': '0',
+    'float': '0.0',
     'char': '',
 }
+
+def find_variable_attribute(var_name, attribute):
+    if var_name in func_map[shared.scope]['vars']:
+        return func_map[shared.scope]['vars'][var_name][attribute]
+    elif var_name in func_map[shared.scope]['params']:
+        return func_map[shared.scope]['params'][var_name][attribute]
+    return None
+    
+def normalize_boolean(value):
+    if value is False:
+        return 0
+    elif value is True:
+        return 1
+    else:
+        return value
+
+def find_register_result(operator, q2, q3):
+    q2_memory_index = find_variable_attribute(q2, 'memory_index')
+    q3_memory_index = find_variable_attribute(q3, 'memory_index')
+    if q2_memory_index is not None:
+        q2_value = memory.get_value(q2_memory_index)
+    else:
+        q2_value = semantic_cube.get_constant_value(q2)
+    if q3_memory_index is not None:
+        q3_value = memory.get_value(q3_memory_index)
+    else:
+        q3_value = semantic_cube.get_constant_value(q3)
+    res = shared.operators[operator](q2_value, q3_value)
+    res = normalize_boolean(res)
+    return str(res)
+
+def insert_tmp_value(operator, q2, q3, tmp_var_name):
+    type_register = semantic_cube.find_return_type(q2, q3, operator)
+    value_register = find_register_result(operator, q2, q3)
+    insert_tmp_var(shared.scope, tmp_var_name, type_register, value_register)
+    
 
 def insert_quadruple_reg(func_name, quadruple_reg):
     if func_name not in func_map:
         gen_err(f'Tratando de agregar # de cuadruplo a funcion que no existe "{func_name}"')
     else:
         func_map[func_name]['quadruple_reg'] = quadruple_reg
-
 
 
 def insert_function(func_name, type='void'):
@@ -48,7 +85,7 @@ def insert_function(func_name, type='void'):
         func_map[func_name] = {
             'type': type,
             'vars': {},
-            'params': [],
+            'params': {},
         }
 
 def _insert_var(scope, segment, var_name, type=None, value=None):
@@ -88,7 +125,11 @@ def insert_var(scope, var_name, type=None, value=None):
 
 def insert_param(func_name, param_name, param_type):
     # append param to a function
-    func_map[func_name]['params'].append((param_name, param_type))
+    func_map[func_name]['params'][param_name] = {
+        'type': param_type,
+        'value': empty_values[param_type],
+        'memory_index': memory.local_memory.push(param_type, empty_values[param_type]),
+    }
 
 
 
