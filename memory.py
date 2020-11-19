@@ -1,4 +1,5 @@
 import error
+import semantic_cube
 
 class SegmentBounds:
     INT_MIN = 0
@@ -61,7 +62,10 @@ class Segment:
             raise TypeError
 
         chunk = self.chunks[type]
-        chunk[index] = value
+        if value is not None:
+            chunk[index] = semantic_cube.get_constant_value(value)
+        else:
+            chunk[index] = None
         return index
 
     def get_value(self, index):
