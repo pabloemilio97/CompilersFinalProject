@@ -34,9 +34,11 @@ def quad_pos():
 
 def gen_assign_quadruples(expression, assign_to):
     if len(expression) == 1:
+        semantic_cube.same_type(expression[0], assign_to)
         gen_quad('=', expression[0], '', assign_to)
     else:
         gen_arithmetic_quadruples(expression)
+        semantic_cube.same_type(quadruples[-1][-1], assign_to)
         gen_quad('=', quadruples[-1][-1], '', assign_to)
 
 
@@ -132,6 +134,11 @@ def gen_param_quadruples(expression):
         param_result = quadruples[-1][-1]
         gen_quad('PARAM', param_result, '', str_param_num)
     numerics["param_num"] += 1
+
+def gen_function_call_quads(function_name):
+    #gen_quad('=', function_name, '', increment_curr_register('=', variable, expression_result))
+    pass
+
 
     
 def gen_arithmetic_quadruples(expression):

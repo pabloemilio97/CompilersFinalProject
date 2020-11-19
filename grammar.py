@@ -95,11 +95,28 @@ def p_MAIN_AUX(p):
     shared.scope = function_name
 
 def p_BODY(p):
-    '''BODY : FUNCTION_RULE BODY
+    '''BODY : BODY_AUX BODY
     | empty'''
 
+def p_BODY_AUX(p):
+    '''BODY_AUX : FUNCTION_RULE
+    | PROCEDURE'''
+
+def p_PROCEDURE(p):
+    'PROCEDURE : VOID FUNCTION FUNCTION_ID_AUX  LPAREN PARAM RPAREN PROCEDURE_BODY'
+
+def p_PROCEDURE_BODY(p):
+    '''PROCEDURE_BODY : VARS LCURLY STATEMENTS RCURLY'''
+    quad_generator.gen_endfunc_quadruple()
+
 def p_FUNCTION_RULE(p):
-    'FUNCTION_RULE : FUNCTION_AUX FUNCTION FUNCTION_ID_AUX LPAREN PARAM RPAREN FUNCTION_BODY'
+    'FUNCTION_RULE : FUNCTION_SIGNATURE_AUX FUNCTION_BODY'
+    
+def p_FUNCTION_SIGNATURE_AUX(p):
+    'FUNCTION_SIGNATURE_AUX : TYPE FUNCTION FUNCTION_ID_AUX LPAREN PARAM RPAREN'
+    func_type = p[1]
+    symbol_table.func_map[shared.scope]['type'] = func_type
+
 
 def p_PARAM(p):
     '''PARAM : PARAM_TYPE_ID_AUX PARAM_AUX
@@ -126,19 +143,12 @@ def p_FUNCTION_ID_AUX(p):
     symbol_table.insert_function(function_name) # Inserting function into symbol table
     shared.scope = function_name
 
-def p_FUNCTION_AUX(p):
-    '''FUNCTION_AUX : TYPE
-    | VOID'''
-    func_type = p[1]
-    symbol_table.func_map[shared.scope]['type'] = func_type
-
 def p_FUNCTION_BODY(p):
     '''FUNCTION_BODY : VARS LCURLY STATEMENTS FUNCTION_BODY_AUX RCURLY'''
     quad_generator.gen_endfunc_quadruple()
 
 def p_FUNCTION_BODY_AUX(p):
-    '''FUNCTION_BODY_AUX : FUNCTION_RETURN
-    | empty'''
+    '''FUNCTION_BODY_AUX : FUNCTION_RETURN'''
 
 def p_TYPE(p):
     '''TYPE : INT
@@ -206,6 +216,7 @@ def p_FUNCTION_CALL(p):
     'FUNCTION_CALL : FUNCTION_CALL_ID_AUX LPAREN FUNCTION_CALL_AUX RPAREN'
     function_name = p[1]
     quad_generator.gen_quad('GOSUB', '', '', function_name)
+    p[0] = function_name
 
 def p_FUNCTION_CALL_ID_AUX(p):
     'FUNCTION_CALL_ID_AUX : ID'
@@ -418,14 +429,25 @@ def p_TERM_AUX2(p):
 def p_FACTOR(p):
     '''FACTOR : LPAREN_AUX EXPRESSION RPAREN_AUX
     | CTEI
-    | CTECHAR
+    | CTECHAR_AUX
     | CTEF
     | VAR_AUX
-    | FUNCTION_CALL'''
+    | FUNCTION_CALL_EXPRESSION'''
     if len(p) != 4:
         factor = p[1]
         shared.arithmetic_operation.append(factor)
 
+def p_CTECHAR_AUX(p):
+    'CTECHAR_AUX : CTECHAR'
+    char = p[1]
+    p[0] = char[1:-1]
+
+def p_FUNCTION_CALL_EXPRESSION(p):
+    '''FUNCTION_CALL_EXPRESSION : FUNCTION_CALL'''
+    function_name = p[1]
+    if symbol_table.func_map[function_name]["type"] == "void":
+        error.gen_err(f"Función {function_name} no tiene valor de retorno")
+    quad_generator.gen_function_call_quads(function_name)
 
 
 def p_LPAREN_AUX(p):

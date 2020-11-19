@@ -165,6 +165,14 @@ cube = {
     "char": char_map,
 }
 
+def same_type(input1, input2, raise_error=True):
+    type1 = check_type(input1)
+    type2 = check_type(input2)
+    is_same_type = type1 == type2
+    if(raise_error and not is_same_type):
+        error.gen_err(f"Tratando de asignar a {input1} un tipo incorrecto.")
+    return is_same_type
+
 def _find_return_type(type1, type2, operator):
     res = cube[type1][type2][operator]
     if (res == 'invalid'):
