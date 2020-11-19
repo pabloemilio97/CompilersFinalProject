@@ -1,3 +1,5 @@
+import operator
+
 scope = 'global'
 assign_to = ''
 arithmetic_operation = []
@@ -12,4 +14,18 @@ jump_operations = {
 numerics = {
     "curr_register": 0,
     "param_num": 1,
+}
+operators = {
+    '+': operator.add,
+    '-': operator.sub,
+    '*': operator.mul,
+    '/': operator.truediv,
+    '>': operator.gt,
+    '<': operator.lt,
+    '>=': operator.ge,
+    '<=': operator.le,
+    '==': operator.eq,
+    '!=': operator.ne,
+    '&': operator.and_,
+    '|': operator.or_,
 }
