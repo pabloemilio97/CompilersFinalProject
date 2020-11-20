@@ -12,7 +12,6 @@ import pprint
 from memory import memory
 import semantic_cube
 
-#pending: add string for declaration?
 reserved = {
     'program': 'PROGRAM',
     'main': 'MAIN',
