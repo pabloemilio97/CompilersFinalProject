@@ -1,7 +1,9 @@
 import operator
+from collections import deque
 
 scope = 'global'
 assign_to = ''
+current_declaration_type = ''
 expression_stack = [[]]
 param_nums_stack = []
 quadruples = []

@@ -1,9 +1,8 @@
 program programa;
-let int globalInt;
-let float f;
-let char ch;
+let int g[2][10], myVar, arr[25];
+let int myY, globalInt[10];
 
-int function myFunc(int x, int y)
+int function myFunc(int y, int x)
 let int res;
 {
     res = x + y;
@@ -12,8 +11,6 @@ let int res;
 
 main() {
     globalInt = 10;
-    f = 100.0;
-    ch = "a";
 }
 
 

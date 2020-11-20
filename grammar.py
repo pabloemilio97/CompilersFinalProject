@@ -158,29 +158,48 @@ def p_TYPE(p):
     p[0] = type
 
 def p_VARS(p):
-    '''VARS : LET TYPE ID_LIST SEMICOLON VARS
+    '''VARS : LET TYPE_DECLARATION_AUX ID_LIST SEMICOLON VARS
     | empty'''
-    if len(p) == 6: # if it's declaring a variable
-        var_name = p[3]
-        var_type = p[2]
-        symbol_table.insert_var(shared.scope, var_name, var_type)
+
+def p_TYPE_DECLARATION_AUX(p):
+    'TYPE_DECLARATION_AUX : TYPE'
+    shared.current_declaration_type = p[1]
 
 def p_ID_LIST(p):
-    '''ID_LIST : ID ID_LIST_AUX
+    '''ID_LIST : ID_AUX ID_LIST_AUX
     | MULTIDIMENSIONAL ID_LIST_AUX'''
+
+def p_ID_AUX(p):
+    '''ID_AUX : ID'''
     var_name = p[1]
-    if len(p) == 3: # if it's declaring a variable pass it to VARS
-        p[0] = var_name
+    symbol_table.insert_var(shared.scope, var_name, shared.current_declaration_type)
 
 def p_ID_LIST_AUX(p):
     '''ID_LIST_AUX : COMMA ID_LIST
     | empty'''
-    
 
 def p_MULTIDIMENSIONAL(p):
-    '''MULTIDIMENSIONAL : ID LBRACKET CTEI RBRACKET
-    | ID LBRACKET CTEI RBRACKET LBRACKET CTEI RBRACKET'''
-    
+    '''MULTIDIMENSIONAL : ARRAY
+    | MATRIX'''
+
+def p_ARRAY(p):
+    '''ARRAY : ID LBRACKET CTEI_AUX RBRACKET'''
+    name = p[1]
+    dimension = p[3]
+    symbol_table.insert_var(shared.scope, name, shared.current_declaration_type, [dimension])
+
+def p_MATRIX(p):
+    '''MATRIX : ID LBRACKET CTEI_AUX RBRACKET LBRACKET CTEI_AUX RBRACKET'''
+    name = p[1]
+    dimension_1 = p[3]
+    dimension_2 = p[6]
+    symbol_table.insert_var(shared.scope, name, shared.current_declaration_type, [dimension_1, dimension_2])
+
+def p_CTEI_AUX(p):
+    '''CTEI_AUX : CTEI'''
+    constant = p[1]
+    symbol_table.insert_constant(constant)
+    p[0] = constant
 
 def p_STATEMENTS(p):
     '''STATEMENTS : STATEMENTS_AUX STATEMENTS
@@ -444,12 +463,7 @@ def p_FACTOR_CONSTANTS(p):
     | CTECHAR_AUX
     | CTEF'''
     constant = p[1]
-    constant_type = semantic_cube.check_type(constant)
-    constant_map = {
-        'memory_index': memory.constant_memory.push(constant_type),
-        'type': constant_type,
-    }
-    symbol_table.func_map['constants'][constant] = constant_map
+    symbol_table.insert_constant(constant)
     p[0] = constant
 
 

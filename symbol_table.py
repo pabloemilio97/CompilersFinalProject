@@ -29,6 +29,15 @@ func_map = {
     'constants': {}
 }
 
+def insert_constant(constant):
+    if constant not in func_map['constants']:
+        constant_type = semantic_cube.check_type(constant)
+        constant_map = {
+            'memory_index': memory.constant_memory.compile_push(constant_type),
+            'type': constant_type,
+        }
+        func_map['constants'][constant] = constant_map
+
 
 
 empty_values = {
@@ -91,44 +100,43 @@ def insert_function(func_name, type='void'):
             'params': {},
         }
 
-def _insert_var(scope, segment, var_name, type=None, value=None):
+def _insert_var(scope, segment, var_name, type=None, dimensions=None):
     if var_name in func_map[scope]['vars'].keys():
         err(f'variable already declared in {scope} scope', var_name)
     else:
-        if (value == None):
-            value = empty_values[type]
         func_map[scope]['vars'][var_name] = {
+            'memory_index' : segment.compile_push(type, dimensions),
             'type': type,
-            'memory_index' : segment.push(type, value),
+            'dimensions': dimensions,
         }
 
-def _insert_generic_local_var(func_name, segment, var_name, type=None, value=None):
+def _insert_generic_local_var(func_name, segment, var_name, type=None, dimensions=None):
     if var_name in func_map['global']['vars'].keys():
         # var already declared globally
         err('variable ' + var_name + ' already declared globally', func_name)
-    _insert_var(func_name, segment, var_name, type, value)
+    _insert_var(func_name, segment, var_name, type, dimensions)
 
-def _insert_local_var(func_name, var_name, type=None, value=None):
-    _insert_generic_local_var(func_name, memory.local_memory, var_name, type, value)
+def _insert_local_var(func_name, var_name, type=None, dimensions=None):
+    _insert_generic_local_var(func_name, memory.local_memory, var_name, type, dimensions)
 
-def insert_tmp_var(func_name, var_name, type=None, value=None):
-    _insert_generic_local_var(func_name, memory.tmp_memory, var_name, type, value)
+def insert_tmp_var(func_name, var_name, type=None):
+    _insert_generic_local_var(func_name, memory.tmp_memory, var_name, type)
 
-def _insert_global_var(var_name, type, value=None):
-    _insert_var("global", memory.global_memory, var_name, type, value)
+def _insert_global_var(var_name, type, dimensions=None):
+    _insert_var("global", memory.global_memory, var_name, type, dimensions)
 
-def insert_var(scope, var_name, type=None, value=None):
+def insert_var(scope, var_name, type=None, dimensions=None):
     if scope == "global":
-        _insert_global_var(var_name, type, value)
+        _insert_global_var(var_name, type, dimensions)
     # Is local
     else:
-        _insert_local_var(scope, var_name, type, value)
+        _insert_local_var(scope, var_name, type, dimensions)
 
 
 def insert_param(func_name, param_name, param_type):
     # append param to a function
     func_map[func_name]['params'][param_name] = {
-        'memory_index': memory.local_memory.push(param_type),
+        'memory_index': memory.local_memory.compile_push(param_type),
         'type': param_type,
     }
 

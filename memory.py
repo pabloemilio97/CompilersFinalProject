@@ -44,29 +44,37 @@ class Segment:
             "char": {},
         }
     
-    def push(self, type, value=None):
+    def _allocate_memory(self, type, space=1):
+        if type == "int":
+            self.int_index += space
+            index = self.int_index - space
+        elif type == "float":
+            self.float_index += space
+            index = self.float_index - space
+        elif type == "char":
+            self.char_index += space
+            index = self.char_index - space
+        else:
+            raise TypeError
+
+        return index
+
+    def compile_push(self, type, dimensions=None):
         """
         Add variable to memory, increment current index.
         Return assigned memory index.
         """
-        if type == "int":
-            self.int_index += 1
-            index = self.int_index - 1
-        elif type == "float":
-            self.float_index += 1
-            index = self.float_index - 1
-        elif type == "char":
-            self.char_index += 1
-            index = self.char_index - 1
-        else:
-            raise TypeError
+        if dimensions is None:
+            return self._allocate_memory(type)
+        
+        space = 1
+        for d in dimensions:
+            d = int(d)
+            space *= d
+        
+        return self._allocate_memory(type, space)
 
-        chunk = self.chunks[type]
-        if value is not None:
-            chunk[index] = semantic_cube.get_constant_value(value)
-        else:
-            chunk[index] = None
-        return index
+
 
     def get_value(self, index):
         """
