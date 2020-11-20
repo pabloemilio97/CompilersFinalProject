@@ -494,6 +494,10 @@ while True:
 # use debug=True for debugging
 parser.parse(data)
 
+
+# Add last quadruple
+quad_generator.gen_quad('ENDPROG', '', '', '')
+
 for q in shared.quadruples:
     print(q)
 pprint = pprint.PrettyPrinter(indent=4)
