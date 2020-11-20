@@ -34,11 +34,11 @@ def quad_pos():
 
 def gen_assign_quadruples(expression, assign_to):
     if len(expression) == 1:
-        semantic_cube.same_type(expression[0], assign_to)
+        semantic_cube.same_type(assign_to, expression[0])
         gen_quad('=', expression[0], '', assign_to)
     else:
         gen_arithmetic_quadruples(expression)
-        semantic_cube.same_type(quadruples[-1][-1], assign_to)
+        semantic_cube.same_type(assign_to, quadruples[-1][-1],)
         gen_quad('=', quadruples[-1][-1], '', assign_to)
 
 

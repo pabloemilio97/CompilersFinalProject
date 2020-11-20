@@ -170,7 +170,7 @@ def same_type(input1, input2, raise_error=True):
     type2 = check_type(input2)
     is_same_type = type1 == type2
     if(raise_error and not is_same_type):
-        error.gen_err(f"Tratando de asignar a {input1} un tipo incorrecto.")
+        error.gen_err(f"Tratando de asignar a {input1} un tipo incorrecto: {type2}")
     return is_same_type
 
 def _find_return_type(type1, type2, operator):
@@ -187,6 +187,8 @@ def find_return_type(input1, input2, operator):
     return res
 
 def check_type(input):
+    if input in symbol_table.func_map['global']['vars']:
+        return symbol_table.func_map['global']['vars'][input]['type']
     if input in symbol_table.func_map[shared.scope]['vars']:
         return symbol_table.func_map[shared.scope]['vars'][input]['type']
     elif input in symbol_table.func_map[shared.scope]['params']:

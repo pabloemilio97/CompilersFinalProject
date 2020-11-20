@@ -3,5 +3,5 @@ let int globalInt;
 
 
 main() {
-    globalInt = "b";
+    globalInt = 10.0;
 }
