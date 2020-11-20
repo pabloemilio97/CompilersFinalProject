@@ -23,9 +23,12 @@ class Variable:
 # 'vars': {}
 # 'params': {}
 # 'quadruple_reg' : '1'
-# 'return_value' : 
+# 'return_value' :
 
-func_map = {}
+func_map = {
+    'constants': {}
+}
+
 
 
 empty_values = {
@@ -66,8 +69,7 @@ def find_register_result(operator, q2, q3):
 
 def insert_tmp_value(operator, q2, q3, tmp_var_name):
     type_register = semantic_cube.find_return_type(q2, q3, operator)
-    value_register = find_register_result(operator, q2, q3)
-    insert_tmp_var(shared.scope, tmp_var_name, type_register, value_register)
+    insert_tmp_var(shared.scope, tmp_var_name, type_register)
     
 
 def insert_quadruple_reg(func_name, quadruple_reg):
@@ -97,7 +99,6 @@ def _insert_var(scope, segment, var_name, type=None, value=None):
             value = empty_values[type]
         func_map[scope]['vars'][var_name] = {
             'type': type,
-            'value': value,
             'memory_index' : segment.push(type, value),
         }
 
@@ -127,9 +128,8 @@ def insert_var(scope, var_name, type=None, value=None):
 def insert_param(func_name, param_name, param_type):
     # append param to a function
     func_map[func_name]['params'][param_name] = {
+        'memory_index': memory.local_memory.push(param_type),
         'type': param_type,
-        'value': empty_values[param_type],
-        'memory_index': memory.local_memory.push(param_type, empty_values[param_type]),
     }
 
 

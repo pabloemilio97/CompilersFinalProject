@@ -10,6 +10,7 @@ import error
 import quad_generator
 import pprint
 from memory import memory
+import semantic_cube
 
 #pending: add string for declaration?
 reserved = {
@@ -432,14 +433,26 @@ def p_TERM_AUX2(p):
 
 def p_FACTOR(p):
     '''FACTOR : LPAREN_AUX EXPRESSION RPAREN_AUX
-    | CTEI
-    | CTECHAR_AUX
-    | CTEF
+    | FACTOR_CONSTANTS
     | VAR_AUX
     | FUNCTION_CALL_EXPRESSION'''
     if len(p) != 4:
         factor = p[1]
         shared.expression_stack[-1].append(factor)
+
+def p_FACTOR_CONSTANTS(p):
+    '''FACTOR_CONSTANTS : CTEI
+    | CTECHAR_AUX
+    | CTEF'''
+    constant = p[1]
+    constant_type = semantic_cube.check_type(constant)
+    constant_map = {
+        'memory_index': memory.constant_memory.push(constant_type),
+        'type': constant_type,
+    }
+    symbol_table.func_map['constants'][constant] = constant_map
+    p[0] = constant
+
 
 def p_CTECHAR_AUX(p):
     'CTECHAR_AUX : CTECHAR'

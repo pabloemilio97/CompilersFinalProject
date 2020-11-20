@@ -44,7 +44,7 @@ class Segment:
             "char": {},
         }
     
-    def push(self, type, value):
+    def push(self, type, value=None):
         """
         Add variable to memory, increment current index.
         Return assigned memory index.

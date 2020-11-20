@@ -1,5 +1,7 @@
 program programa;
 let int globalInt;
+let float f;
+let char ch;
 
 int function myFunc(int x, int y)
 let int res;
@@ -9,7 +11,9 @@ let int res;
 }
 
 main() {
-    globalInt = myFunc(myFunc(20, 40), 20);
+    globalInt = 10;
+    f = 100.0;
+    ch = "a";
 }
 
 
