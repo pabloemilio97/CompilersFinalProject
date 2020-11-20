@@ -9,5 +9,7 @@ let int res;
 }
 
 main() {
-    globalInt = myFunc(20, 40);
+    globalInt = 1 + myFunc(myFunc(30 + 40, myFunc(1000, 2000)), 50 + 60);
 }
+
+

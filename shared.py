@@ -2,7 +2,8 @@ import operator
 
 scope = 'global'
 assign_to = ''
-expression_array = []
+expression_stack = [[]]
+param_nums_stack = []
 quadruples = []
 quadruples_mem = []
 operands_stack = []
@@ -13,7 +14,6 @@ jump_operations = {
 }
 numerics = {
     "curr_register": 0,
-    "param_num": 1,
 }
 operators = {
     '+': operator.add,

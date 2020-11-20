@@ -1,7 +1,7 @@
 import semantic_cube
 import symbol_table
 import shared
-from shared import quadruples, operands_stack, operations_stack, jump_stack, jump_operations, numerics
+from shared import quadruples, operands_stack, operations_stack, jump_stack, jump_operations, numerics, param_nums_stack
 from memory import memory
 
 cube = semantic_cube.cube
@@ -126,7 +126,7 @@ def gen_write_quadruples(expression):
     _gen_generic_quadruples('WRITE', expression)
 
 def gen_param_quadruples(expression):
-    str_param_num = f'param{str(numerics["param_num"])}'
+    str_param_num = f'param{str(param_nums_stack[-1])}'
     if len(expression) == 1:
         gen_quad('PARAM', expression[0], '', str_param_num)
     else:
@@ -134,7 +134,7 @@ def gen_param_quadruples(expression):
         # here we have to validate that what ends up in the last tmp value register, is the same type as the parameter
         param_result = quadruples[-1][-1]
         gen_quad('PARAM', param_result, '', str_param_num)
-    numerics["param_num"] += 1
+    param_nums_stack[-1] += 1
 
 def gen_function_call_quads(function_name):
     function_type = symbol_table.func_map[function_name]['type']

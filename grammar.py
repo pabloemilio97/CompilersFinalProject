@@ -207,20 +207,23 @@ def p_STATEMENTS_AUX3(p):
 def p_ASSIGNMENT(p):
     'ASSIGNMENT : VAR EQUALS EXPRESSION'
     assign_to = shared.assign_to
-    expression = shared.expression_array
+    expression = shared.expression_stack[-1]
     quad_generator.gen_assign_quadruples(expression, assign_to)
-    shared.expression_array.clear()
-    
+    shared.expression_stack[-1].clear()    
 
 def p_FUNCTION_CALL(p):
     'FUNCTION_CALL : FUNCTION_CALL_ID_AUX LPAREN FUNCTION_CALL_AUX RPAREN'
     function_name = p[1]
     quad_generator.gen_quad('GOSUB', '', '', function_name)
     p[0] = function_name
+    shared.expression_stack.pop()
+    shared.param_nums_stack.pop()
 
 def p_FUNCTION_CALL_ID_AUX(p):
     'FUNCTION_CALL_ID_AUX : ID'
     function_name = p[1]
+    shared.expression_stack.append([])
+    shared.param_nums_stack.append(1)
     if function_name not in symbol_table.func_map:
         error.gen_err(f'Haciendo llamada a funcion que no existe "{function_name}"')
     else:
@@ -231,14 +234,14 @@ def p_FUNCTION_CALL_ID_AUX(p):
 def p_FUNCTION_CALL_AUX(p):
     '''FUNCTION_CALL_AUX : PARAM_EXPRESSION FUNCTION_CALL_AUX2
     | empty'''
-    shared.numerics["param_num"] = 1
+    shared.param_nums_stack[-1] = 1
 
 
 def p_PARAM_EXPRESSION(p):
     'PARAM_EXPRESSION : EXPRESSION'
-    expression = shared.expression_array
+    expression = shared.expression_stack[-1]
     quad_generator.gen_param_quadruples(expression)
-    shared.expression_array.clear()
+    shared.expression_stack[-1].clear()
 
 def p_FUNCTION_CALL_AUX2(p):
     '''FUNCTION_CALL_AUX2 : COMMA PARAM_EXPRESSION FUNCTION_CALL_AUX2
@@ -265,10 +268,9 @@ def p_WRITE_AUX(p):
 
 def p_WRITE_EXPRESSION_AUX(p):
     'WRITE_EXPRESSION_AUX : EXPRESSION'
-    expression = shared.expression_array
+    expression = shared.expression_stack[-1]
     quad_generator.gen_write_quadruples(expression)
-    shared.expression_array.clear()
-    
+    shared.expression_stack[-1].clear()
 
 def p_VAR(p):
     '''VAR : ID
@@ -284,9 +286,9 @@ def p_VAR(p):
 
 def p_FUNCTION_RETURN(p):
     'FUNCTION_RETURN : RETURN EXPRESSION SEMICOLON'
-    expression = shared.expression_array
+    expression = shared.expression_stack[-1]
     quad_generator.gen_return_quadruples(expression)
-    shared.expression_array.clear()
+    shared.expression_stack[-1].clear()
 
     
 
@@ -296,8 +298,9 @@ def p_IF_RULE(p):
 
 def p_EXPRESSION_AUX_IF(p):
     'EXPRESSION_AUX_IF : EXPRESSION'
-    quad_generator.gen_if_quadruples(shared.expression_array)
-    shared.expression_array.clear()
+    expression = shared.expression_stack[-1]
+    quad_generator.gen_if_quadruples(expression)
+    shared.expression_stack[-1].clear()
 
 def p_IF_AUX(p):
     '''IF_AUX : ELSE_AUX LCURLY STATEMENTS RCURLY_AUX_ELSE
@@ -322,8 +325,9 @@ def p_WHILE_WORD_AUX(p):
 
 def p_WHILE_EXPRESSION_AUX(p):
     'WHILE_EXPRESSION_AUX : EXPRESSION'
-    quad_generator.gen_while_quadruples(shared.expression_array)
-    shared.expression_array.clear()
+    expression = shared.expression_stack[-1]
+    quad_generator.gen_while_quadruples(expression)
+    shared.expression_stack[-1].clear()
 
 def p_RCURLY_WHILE_AUX(p):
     'RCURLY_WHILE_AUX : RCURLY'
@@ -347,8 +351,9 @@ def p_FOR_EXPRESSION_AUX(p):
     'FOR_EXPRESSION_AUX : EXPRESSION'
     # The last quadruple that has been generated is the assignment
     variable = shared.quadruples[-1][-1]
-    quad_generator.gen_for_quadruples(variable, shared.expression_array)
-    shared.expression_array.clear()
+    expression = shared.expression_stack[-1]
+    quad_generator.gen_for_quadruples(variable, expression)
+    shared.expression_stack[-1].clear()
     # To know which variable corresponds to the for loop scope
     p[0] = variable
     
@@ -359,7 +364,7 @@ def p_TO_WORD_AUX(p):
 
 def p_EXPRESSION(p):
     'EXPRESSION : AND_EXPRESSION EXPRESSION_AUX'
-    value = shared.expression_array
+    value = shared.expression_stack[-1]
     p[0] = value
     
 
@@ -393,7 +398,7 @@ def p_COMPARE_EXPRESSION_AUX2(p):
     | DOUBLEEQUALS
     | NOTEQUALS'''
     operation = p[1]
-    shared.expression_array.append(operation)
+    shared.expression_stack[-1].append(operation)
     
 
 def p_ARITHMETIC_EXPRESSION(p):
@@ -408,8 +413,7 @@ def p_ARITHMETIC_EXPRESSION_AUX2(p):
     '''ARITHMETIC_EXPRESSION_AUX2 : PLUS
     | MINUS'''
     operation = p[1]
-    shared.expression_array.append(operation)
-    
+    shared.expression_stack[-1].append(operation)    
 
 def p_TERM(p):
     'TERM : FACTOR TERM_AUX'
@@ -423,7 +427,7 @@ def p_TERM_AUX2(p):
     '''TERM_AUX2 : MULTIPLY
     | DIVIDE'''
     operation = p[1]
-    shared.expression_array.append(operation)
+    shared.expression_stack[-1].append(operation)
     
 
 def p_FACTOR(p):
@@ -435,7 +439,7 @@ def p_FACTOR(p):
     | FUNCTION_CALL_EXPRESSION'''
     if len(p) != 4:
         factor = p[1]
-        shared.expression_array.append(factor)
+        shared.expression_stack[-1].append(factor)
 
 def p_CTECHAR_AUX(p):
     'CTECHAR_AUX : CTECHAR'
@@ -453,12 +457,11 @@ def p_FUNCTION_CALL_EXPRESSION(p):
 
 def p_LPAREN_AUX(p):
     'LPAREN_AUX : LPAREN'
-    shared.expression_array.append(p[1])
+    shared.expression_stack[-1].append(p[1])
 
 def p_RPAREN_AUX(p):
     'RPAREN_AUX : RPAREN'
-    shared.expression_array.append(p[1])
-
+    shared.expression_stack[-1].append(p[1])
 
 def p_VAR_AUX(p):
     'VAR_AUX : ID'
