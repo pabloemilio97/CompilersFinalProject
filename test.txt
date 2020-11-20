@@ -4,8 +4,10 @@ let int globalInt;
 int function myFunc(int x, int y)
 let int A;
 let int B;
+let float C;
 {
     A = x + y;
+    C = 20 + 50;
     return 20;
 }
 

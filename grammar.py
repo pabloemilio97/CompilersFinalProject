@@ -90,6 +90,9 @@ def p_MAIN_AUX(p):
     'MAIN_AUX : MAIN'
     main_pos = int(shared.jump_stack.pop())
     shared.quadruples[main_pos][-1] = quad_generator.quad_pos()
+    function_name = p[1] # function name is main here
+    symbol_table.insert_function(function_name) # Inserting function into symbol table
+    shared.scope = function_name
 
 def p_BODY(p):
     '''BODY : FUNCTION_RULE BODY
