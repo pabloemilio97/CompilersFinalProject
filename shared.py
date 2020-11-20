@@ -2,7 +2,7 @@ import operator
 
 scope = 'global'
 assign_to = ''
-arithmetic_operation = []
+expression_array = []
 quadruples = []
 quadruples_mem = []
 operands_stack = []

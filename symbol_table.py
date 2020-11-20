@@ -64,7 +64,6 @@ def find_register_result(operator, q2, q3):
     res = normalize_boolean(res)
     return str(res)
 
-# 
 def insert_tmp_value(operator, q2, q3, tmp_var_name):
     type_register = semantic_cube.find_return_type(q2, q3, operator)
     value_register = find_register_result(operator, q2, q3)

@@ -182,7 +182,6 @@ def _find_return_type(type1, type2, operator):
 def find_return_type(input1, input2, operator):
     type1 = check_type(input1)
     type2 = check_type(input2)
-    print(input1, input2, type1, type2)
     res = _find_return_type(type1, type2, operator)
     return res
 

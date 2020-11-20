@@ -1,7 +1,13 @@
 program programa;
 let int globalInt;
 
+int function myFunc(int x, int y)
+let int res;
+{
+    res = x + y;
+    return res;
+}
 
 main() {
-    globalInt = 10.0;
+    globalInt = myFunc(20, 40);
 }

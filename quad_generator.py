@@ -1,5 +1,6 @@
 import semantic_cube
 import symbol_table
+import shared
 from shared import quadruples, operands_stack, operations_stack, jump_stack, jump_operations, numerics
 from memory import memory
 
@@ -19,7 +20,7 @@ operations = {
     '*': 2,
 }
 
-def increment_curr_register(operator, q2, q3):
+def create_tmp_from_operation(operator, q2, q3):
     """
     Return curr_register and add 1 to it.
     We usually have to add 1 each time we consult curr_register.
@@ -84,7 +85,7 @@ def gen_endwhile_quadruples():
     _gen_endloop_quadruples()
     
 def gen_endfor_quadruples(variable):
-    curr_register = increment_curr_register('+', variable, '1')
+    curr_register = create_tmp_from_operation('+', variable, '1')
     gen_quad('+', variable, '1', curr_register)
     gen_quad('=', curr_register, '', variable)
     _gen_endloop_quadruples()
@@ -100,7 +101,7 @@ def gen_for_quadruples(variable, expression):
         gen_arithmetic_quadruples(expression)
         expression_result = quadruples[-1][-1]
     
-    gen_quad('<', variable, expression_result, increment_curr_register('<', variable, expression_result))
+    gen_quad('<', variable, expression_result, create_tmp_from_operation('<', variable, expression_result))
     comparison_result = quadruples[-1][-1]
     gen_quad('gotoF', comparison_result, '', '')
 
@@ -136,10 +137,13 @@ def gen_param_quadruples(expression):
     numerics["param_num"] += 1
 
 def gen_function_call_quads(function_name):
-    #gen_quad('=', function_name, '', increment_curr_register('=', variable, expression_result))
-    pass
-
-
+    function_type = symbol_table.func_map[function_name]['type']
+    old_value = int(numerics["curr_register"])
+    new_tmp = f't{old_value}'
+    gen_quad('=', function_name, '', new_tmp)
+    symbol_table.insert_tmp_var(shared.scope, new_tmp, function_type)
+    numerics["curr_register"] = str(old_value + 1)
+    return new_tmp
     
 def gen_arithmetic_quadruples(expression):
     for value in expression:
@@ -158,7 +162,7 @@ def gen_arithmetic_quadruples(expression):
                     second_operand = operands_stack.pop()
                     first_operand = operands_stack.pop()
                     operation = operations_stack.pop()
-                    curr_register = increment_curr_register(operation, first_operand, second_operand)
+                    curr_register = create_tmp_from_operation(operation, first_operand, second_operand)
                     gen_quad(operation, first_operand, second_operand, curr_register)
                     operands_stack.append(curr_register)
                 operations_stack.append(value)
@@ -177,7 +181,7 @@ def flush_remaining(operations_stack, operands_stack):
         second_operand = operands_stack.pop()
         first_operand = operands_stack.pop()
         operator = operations_stack.pop()
-        curr_register = increment_curr_register(operator, first_operand, second_operand)
+        curr_register = create_tmp_from_operation(operator, first_operand, second_operand)
         gen_quad(operator, first_operand, second_operand, curr_register)
         operands_stack.append(curr_register)
 
