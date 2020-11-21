@@ -1,5 +1,5 @@
 program programa;
-let int globalInt[10][20];
+let int a, globalInt[10][20];
 
 int function myFunc(int x, int y)
 let int res;
@@ -8,8 +8,9 @@ let int res;
     return res;
 }
 
-main() {  
-    globalInt[5 + 500][7 + 300] = 1000;
+main() {
+    a = myFunc(5, 10.5);
+    //globalInt[5 + 500][7 + 300] = 1000;
 }
 
 

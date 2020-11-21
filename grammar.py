@@ -236,12 +236,14 @@ def p_FUNCTION_CALL(p):
     p[0] = function_name
     shared.expression_stack.pop()
     shared.param_nums_stack.pop()
+    shared.function_call_names_stack.pop()
 
 def p_FUNCTION_CALL_ID_AUX(p):
     'FUNCTION_CALL_ID_AUX : ID'
     function_name = p[1]
     shared.expression_stack.append([])
     shared.param_nums_stack.append(1)
+    shared.function_call_names_stack.append(function_name)
     if function_name not in symbol_table.func_map:
         error.gen_err(f'Haciendo llamada a funcion que no existe "{function_name}"')
     else:

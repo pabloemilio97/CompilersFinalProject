@@ -1,6 +1,7 @@
 import semantic_cube
 import symbol_table
 import shared
+import error
 from shared import quadruples, operands_stack, operations_stack, jump_stack, jump_operations, numerics, param_nums_stack
 from memory import memory
 
@@ -131,8 +132,20 @@ def gen_write_quadruples(expression):
     _gen_generic_quadruples('WRITE', expression)
 
 def gen_param_quadruples(expression):
-    str_param_num = f'param{str(param_nums_stack[-1])}'
+    def is_correct_type(expression_result, param_num):
+        function_name = shared.function_call_names_stack[-1]
+        params = list(func_map[function_name]['params'].values())
+        param_type = params[param_num-1]["type"]
+        expression_type = semantic_cube.check_type(expression_result)
+        if not param_type == expression_type:
+            params = list(func_map[function_name]['params'].keys())
+            param_name = params[param_num-1]
+            error.gen_err(f'Type not valid for param "{param_name}" in function call "{function_name}".')
+    
+    param_num = param_nums_stack[-1]
+    str_param_num = f'param{str(param_num)}'
     expression_result = get_expression_result(expression)
+    is_correct_type(expression_result, param_num)
     gen_quad('PARAM', expression_result, '', str_param_num)
     param_nums_stack[-1] += 1
 
