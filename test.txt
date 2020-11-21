@@ -1,7 +1,6 @@
 program programa;
 let int globalInt[10], a, b;
 
-
 int function myFunc(int x, int y)
 let int res;
 {
@@ -10,10 +9,9 @@ let int res;
 }
 
 main() {
-
-    for (a = 7 * 5 to 100) {
-
-    }
+    a = 10;
+    b = 20;    
+    globalInt[5 + 15 * myFunc(a,b)] = 10;
 }
 
 

@@ -104,7 +104,6 @@ def gen_for_quadruples(variable, expression):
     variable -> variable to compare to
     expression -> when variable reaches this value, cycle ends
     """
-    breakpoint()
     if len(expression) == 1:
         expression_result = expression[0]
     else:
@@ -195,12 +194,18 @@ def flush_remaining(operations_stack, operands_stack):
         gen_quad(operator, first_operand, second_operand, curr_register)
         operands_stack.append(curr_register)
 
-def gen_array_assignment_quads(array_name):
-    expression_result = quadruples[-1][-1]
+def gen_array_assignment_quads(array_name, expression):
+    if len(expression) == 1:
+        expression_result = expression[0]
+    else:
+        gen_arithmetic_quadruples(expression)
+        expression_result = quadruples[-1][-1]
+
     scope = symbol_table.find_variable_scope(array_name)
     array_info = symbol_table.func_map[scope]['vars'][array_name]
     upper_bound = array_info['dimensions'][0]
     array_start_address = str(array_info['memory_index'])
+
     gen_quad('ver', expression_result, '0', upper_bound)
     pointer = create_tmp_pointer()
     gen_quad('+', expression_result, array_start_address, pointer)

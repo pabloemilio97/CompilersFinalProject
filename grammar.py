@@ -305,7 +305,8 @@ def p_ID_ASSIGNMENT(p):
 def p_ARRAY_ASSIGNMENT(p):
     'ARRAY_ASSIGNMENT : ID LBRACKET EXPRESSION RBRACKET'
     array_name = p[1]
-    quad_generator.gen_array_assignment_quads(array_name)
+    expression = p[3]
+    quad_generator.gen_array_assignment_quads(array_name, expression)
 
 
 def p_MATRIX_ASSIGNMENT(p):
