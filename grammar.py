@@ -314,22 +314,6 @@ def p_MATRIX_ASSIGNMENT(p):
     pointer = p[1]
     shared.assign_to = pointer
 
-def p_ARRAY_ACCESS(p):
-    'ARRAY_ACCESS : ID LBRACKET EXPRESSION RBRACKET'
-    array_name = p[1]
-    expression = p[3]
-    pointer = quad_generator.gen_array_assignment_quads(array_name, expression)
-    p[0] = pointer
-
-def p_MATRIX_ACCESS(p):
-    'MATRIX_ACCESS : ID LBRACKET EXPRESSION RBRACKET LBRACKET EXPRESSION RBRACKET'
-    matrix_name = p[1]
-    expression1 = p[3]
-    expression2 = p[6]
-    pointer = quad_generator.gen_matrix_assignment_quads(matrix_name, expression1, expression2)
-    p[0] = pointer
-
-
 def p_FUNCTION_RETURN(p):
     'FUNCTION_RETURN : RETURN EXPRESSION SEMICOLON'
     expression = p[2]
@@ -476,6 +460,8 @@ def p_FACTOR(p):
     '''FACTOR : LPAREN_AUX EXPRESSION RPAREN_AUX
     | FACTOR_CONSTANTS
     | VAR_ACCESS
+    | ARRAY_ACCESS
+    | MATRIX_ACCESS
     | FUNCTION_CALL_EXPRESSION'''
     if len(p) != 4:
         factor = p[1]
@@ -520,6 +506,21 @@ def p_VAR_ACCESS(p):
         error.gen_err(f'Tratando de asignar variable "{var_name}" que no existe')
     else:
         p[0] = var_name
+
+def p_ARRAY_ACCESS(p):
+    'ARRAY_ACCESS : ID LBRACKET EXPRESSION RBRACKET'
+    array_name = p[1]
+    expression = p[3]
+    pointer = quad_generator.gen_array_assignment_quads(array_name, expression)
+    p[0] = pointer
+
+def p_MATRIX_ACCESS(p):
+    'MATRIX_ACCESS : ID LBRACKET EXPRESSION RBRACKET LBRACKET EXPRESSION RBRACKET'
+    matrix_name = p[1]
+    expression1 = p[3]
+    expression2 = p[6]
+    pointer = quad_generator.gen_matrix_assignment_quads(matrix_name, expression1, expression2)
+    p[0] = pointer
     
 
 def p_error(p):

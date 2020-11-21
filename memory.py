@@ -124,7 +124,6 @@ class Memory:
         return None
     
     def get_address_type(self, address):
-        breakpoint()
         for segment in self.segments:
             bounds = segment.segment_bounds
             if bounds.INT_MIN <= address <= bounds.INT_MAX:
