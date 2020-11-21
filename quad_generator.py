@@ -39,26 +39,29 @@ def create_tmp_pointer():
     numerics["curr_pointer_register"] = str(old_value + 1)
     return f"(t{old_value})"
 
+def get_expression_result(expression):
+    """
+    Generate arithemtic quadruples and return result.
+    """
+    if len(expression) == 1:
+        expression_result = expression[0]
+    else:
+        gen_arithmetic_quadruples(expression)
+        expression_result = quadruples[-1][-1]
+    return expression_result
+
 def quad_pos():
     return str(len(quadruples))
 
 def gen_assign_quadruples(expression, assign_to):
-    if len(expression) == 1:
-        semantic_cube.same_type(assign_to, expression[0])
-        gen_quad('=', expression[0], '', assign_to)
-    else:
-        gen_arithmetic_quadruples(expression)
-        semantic_cube.same_type(assign_to, quadruples[-1][-1],)
-        gen_quad('=', quadruples[-1][-1], '', assign_to)
+    expression_result = get_expression_result(expression)
+    semantic_cube.same_type(assign_to, expression_result)
+    gen_quad('=', expression_result, '', assign_to)
 
 
 def _gen_condition_quadruples(expression):
-    if len(expression) == 1:
-        gen_quad('gotoF', expression[0], '', '')
-    else:
-        gen_arithmetic_quadruples(expression)
-        # here we know that last quad has the result of if expression
-        gen_quad('gotoF', quadruples[-1][-1], '', '')
+    expression_result = get_expression_result(expression)
+    gen_quad('gotoF', expression_result, '', '')
 
 def gen_if_quadruples(expression):
     _gen_condition_quadruples(expression)
@@ -104,11 +107,7 @@ def gen_for_quadruples(variable, expression):
     variable -> variable to compare to
     expression -> when variable reaches this value, cycle ends
     """
-    if len(expression) == 1:
-        expression_result = expression[0]
-    else:
-        gen_arithmetic_quadruples(expression)
-        expression_result = quadruples[-1][-1]
+    expression_result = get_expression_result(expression)
     
     gen_quad('<', variable, expression_result, create_tmp_from_operation('<', variable, expression_result))
     comparison_result = quadruples[-1][-1]
@@ -121,12 +120,8 @@ def gen_endfunc_quadruple():
     memory.tmp_memory.flush()
 
 def _gen_generic_quadruples(operation, expression):
-    if len(expression) == 1:
-        gen_quad(operation, '', '', expression[0])
-    else:
-        gen_arithmetic_quadruples(expression)
-        expression_result = quadruples[-1][-1]
-        gen_quad(operation, '', '', expression_result)
+    expression_result = get_expression_result(expression)
+    gen_quad(operation, '', '', expression_result)
 
 def gen_return_quadruples(expression):
     _gen_generic_quadruples('RETURN', expression)
@@ -136,13 +131,8 @@ def gen_write_quadruples(expression):
 
 def gen_param_quadruples(expression):
     str_param_num = f'param{str(param_nums_stack[-1])}'
-    if len(expression) == 1:
-        gen_quad('PARAM', expression[0], '', str_param_num)
-    else:
-        gen_arithmetic_quadruples(expression)
-        # here we have to validate that what ends up in the last tmp value register, is the same type as the parameter
-        param_result = quadruples[-1][-1]
-        gen_quad('PARAM', param_result, '', str_param_num)
+    expression_result = get_expression_result(expression)
+    gen_quad('PARAM', expression_result, '', str_param_num)
     param_nums_stack[-1] += 1
 
 def gen_function_call_quads(function_name):
@@ -195,11 +185,7 @@ def flush_remaining(operations_stack, operands_stack):
         operands_stack.append(curr_register)
 
 def gen_array_assignment_quads(array_name, expression):
-    if len(expression) == 1:
-        expression_result = expression[0]
-    else:
-        gen_arithmetic_quadruples(expression)
-        expression_result = quadruples[-1][-1]
+    expression_result = get_expression_result(expression)
 
     scope = symbol_table.find_variable_scope(array_name)
     array_info = symbol_table.func_map[scope]['vars'][array_name]
@@ -212,19 +198,15 @@ def gen_array_assignment_quads(array_name, expression):
     shared.assign_to = pointer
 
 def gen_matrix_assignment_quads(matrix_name, expression1, expression2):
-    # generate quadruples for firt dim expression
-    if len(expression1) == 1:
-        expression_result1 = expression1[0]
-    else:
-        gen_arithmetic_quadruples(expression1)
-        expression_result1 = quadruples[-1][-1]
-
     # get matrix start address, upper bound1 and 2
     scope = symbol_table.find_variable_scope(matrix_name)
     matrix_info = symbol_table.func_map[scope]['vars'][matrix_name]
     upper_bound1 = matrix_info['dimensions'][0]
     upper_bound2 = matrix_info['dimensions'][1]
     matrix_start_address = str(matrix_info['memory_index'])
+
+    # generate quadruples for firt dim expression
+    expression_result1 = get_expression_result(expression1)
 
     # generate first verify
     gen_quad('ver', expression_result1, '0', upper_bound1)
@@ -234,11 +216,7 @@ def gen_matrix_assignment_quads(matrix_name, expression1, expression2):
     gen_quad('*', expression_result1, upper_bound2, tmp_register)
 
     # generate second dim expression quadruples
-    if len(expression2) == 1:
-        expression_result2 = expression2[0]
-    else:
-        gen_arithmetic_quadruples(expression2)
-        expression_result2 = quadruples[-1][-1]
+    expression_result2 = get_expression_result(expression2)
 
     # generate second verify
     gen_quad('ver', expression_result2, '0', upper_bound2)
