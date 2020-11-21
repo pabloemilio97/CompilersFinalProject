@@ -87,8 +87,8 @@ def insert_tmp_value(operator, q2, q3, tmp_var_name):
     type_register = semantic_cube.find_return_type(q2, q3, operator)
     insert_tmp_var(shared.scope, tmp_var_name, type_register)
 
-def insert_tmp_pointer(tmp_var_name):
-    _insert_generic_local_var(shared.scope, memory.tmp_pointer_memory, tmp_var_name, "int")
+def insert_tmp_pointer(tmp_var_name, pointed_type):
+    _insert_generic_local_var(shared.scope, memory.tmp_pointer_memory, tmp_var_name, "int", pointed_type=pointed_type)
 
 def insert_quadruple_reg(func_name, quadruple_reg):
     if func_name not in func_map:
@@ -109,7 +109,7 @@ def insert_function(func_name, type='void'):
             'params': {},
         }
 
-def _insert_var(scope, segment, var_name, type=None, dimensions=None):
+def _insert_var(scope, segment, var_name, type=None, dimensions=None, pointed_type=None):
     if var_name in func_map[scope]['vars'].keys():
         err(f'variable already declared in {scope} scope', var_name)
     else:
@@ -117,13 +117,14 @@ def _insert_var(scope, segment, var_name, type=None, dimensions=None):
             'memory_index' : segment.compile_push(type, dimensions),
             'type': type,
             'dimensions': dimensions,
+            'pointed_type': pointed_type,
         }
 
-def _insert_generic_local_var(func_name, segment, var_name, type=None, dimensions=None):
+def _insert_generic_local_var(func_name, segment, var_name, type=None, dimensions=None, pointed_type=None):
     if var_name in func_map['global']['vars'].keys():
         # var already declared globally
         err('variable ' + var_name + ' already declared globally', func_name)
-    _insert_var(func_name, segment, var_name, type, dimensions)
+    _insert_var(func_name, segment, var_name, type, dimensions, pointed_type)
 
 def _insert_local_var(func_name, var_name, type=None, dimensions=None):
     _insert_generic_local_var(func_name, memory.local_memory, var_name, type, dimensions)

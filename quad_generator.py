@@ -30,14 +30,15 @@ def create_tmp_from_operation(operator, q2, q3):
     numerics["curr_register"] = str(old_value + 1)
     return f"t{old_value}"
 
-def create_tmp_pointer():
+def create_tmp_pointer(base_dir):
     """
     Create tmp pointer for array access in memory.
     """
-    old_value = int(numerics["curr_pointer_register"])
-    symbol_table.insert_tmp_pointer(f'(t{old_value})')
-    numerics["curr_pointer_register"] = str(old_value + 1)
-    return f"(t{old_value})"
+    pointed_type = memory.get_address_type(base_dir)
+    old_value = int(numerics["curr_register"])
+    symbol_table.insert_tmp_pointer(f't{old_value}', pointed_type)
+    numerics["curr_register"] = str(old_value + 1)
+    return f"t{old_value}"
 
 def get_expression_result(expression):
     """
@@ -184,18 +185,29 @@ def flush_remaining(operations_stack, operands_stack):
         gen_quad(operator, first_operand, second_operand, curr_register)
         operands_stack.append(curr_register)
 
-def gen_array_assignment_quads(array_name, expression):
-    expression_result = get_expression_result(expression)
+def _gen_array_tmp_pointer(expression_result, base_dir):
+    """
+    Final step when accessing array.
+    Create pointer and quad to assign a value to it.
+    """
+    pointer = create_tmp_pointer(base_dir)
+    gen_quad('+', expression_result, str(base_dir), pointer)
+    return pointer
 
+def _gen_ver_quads(expression_result, upper_bound):
+    upper_bound = str(int(upper_bound) - 1)
+    gen_quad('ver', expression_result, '0', upper_bound)
+
+def gen_array_assignment_quads(array_name, expression):
     scope = symbol_table.find_variable_scope(array_name)
     array_info = symbol_table.func_map[scope]['vars'][array_name]
     upper_bound = array_info['dimensions'][0]
-    array_start_address = str(array_info['memory_index'])
+    array_start_address = array_info['memory_index']
+    expression_result = get_expression_result(expression)
 
-    gen_quad('ver', expression_result, '0', upper_bound)
-    pointer = create_tmp_pointer()
-    gen_quad('+', expression_result, array_start_address, pointer)
-    shared.assign_to = pointer
+    _gen_ver_quads(expression_result, upper_bound)
+    pointer = _gen_array_tmp_pointer(expression_result, array_start_address)
+    return f"({pointer})"
 
 def gen_matrix_assignment_quads(matrix_name, expression1, expression2):
     # get matrix start address, upper bound1 and 2
@@ -203,13 +215,13 @@ def gen_matrix_assignment_quads(matrix_name, expression1, expression2):
     matrix_info = symbol_table.func_map[scope]['vars'][matrix_name]
     upper_bound1 = matrix_info['dimensions'][0]
     upper_bound2 = matrix_info['dimensions'][1]
-    matrix_start_address = str(matrix_info['memory_index'])
+    matrix_start_address = matrix_info['memory_index']
 
     # generate quadruples for firt dim expression
     expression_result1 = get_expression_result(expression1)
 
     # generate first verify
-    gen_quad('ver', expression_result1, '0', upper_bound1)
+    _gen_ver_quads(expression_result1, upper_bound1)
 
     # generate tmp quad for getting right address if mat is mat[10][10] (mat[4][6]) (we need 4 * 10 + 6 to get that address)
     tmp_register = create_tmp_from_operation('*', expression_result1, upper_bound2)
@@ -219,16 +231,15 @@ def gen_matrix_assignment_quads(matrix_name, expression1, expression2):
     expression_result2 = get_expression_result(expression2)
 
     # generate second verify
-    gen_quad('ver', expression_result2, '0', upper_bound2)
+    _gen_ver_quads(expression_result2, upper_bound2)
     
     # tmp_register + second expression result
     tmp_register2 = create_tmp_from_operation('+', tmp_register, expression_result2)
     gen_quad('+', tmp_register, expression_result2, tmp_register2)
 
     # pointer + 
-    pointer = create_tmp_pointer()
-    gen_quad('+', tmp_register2, matrix_start_address, pointer)
-    shared.assign_to = pointer
+    pointer = _gen_array_tmp_pointer(tmp_register2, matrix_start_address)
+    return f"({pointer})"
 
 def top(stack):
     if not stack or stack[-1] == '(': 

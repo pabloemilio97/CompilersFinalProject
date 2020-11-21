@@ -185,7 +185,19 @@ def find_return_type(input1, input2, operator):
     res = _find_return_type(type1, type2, operator)
     return res
 
+def _check_pointer_type(pointer):
+    var_name = pointer[1:-1]
+    if var_name in symbol_table.func_map['global']['vars']:
+        return symbol_table.func_map['global']['vars'][var_name]['pointed_type']
+    if var_name in symbol_table.func_map[shared.scope]['vars']:
+        return symbol_table.func_map[shared.scope]['vars'][var_name]['pointed_type']
+    elif var_name in symbol_table.func_map[shared.scope]['params']:
+        return symbol_table.func_map[shared.scope]['params'][var_name]['pointed_type']
+    error.gen_err(f'Apuntador "{pointer}" no encontrada')
+
 def check_type(input):
+    if len(input) >= 2 and input[0] == '(' and input[-1] == ')':
+        return _check_pointer_type(input)
     if input in symbol_table.func_map['global']['vars']:
         return symbol_table.func_map['global']['vars'][input]['type']
     if input in symbol_table.func_map[shared.scope]['vars']:

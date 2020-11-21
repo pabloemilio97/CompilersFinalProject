@@ -122,6 +122,18 @@ class Memory:
                 return value
         error.gen_err(f"Índice de memoria {index} no encontrado.")
         return None
+    
+    def get_address_type(self, address):
+        breakpoint()
+        for segment in self.segments:
+            bounds = segment.segment_bounds
+            if bounds.INT_MIN <= address <= bounds.INT_MAX:
+                return "int"
+            elif bounds.FLOAT_MIN <= address <= bounds.FLOAT_MAX:
+                return "float"
+            elif bounds.CHAR_MIN <= address <= bounds.CHAR_MAX:
+                return "char"
+        error.gen_err(f"Dirección de memoria {address} fuera de rango.")
 
     # For debugging purposes
     def __str__(self):

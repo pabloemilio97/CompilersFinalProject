@@ -16,7 +16,6 @@ jump_operations = {
 }
 numerics = {
     "curr_register": 0,
-    "curr_pointer_register": 0,
 }
 operators = {
     '+': operator.add,

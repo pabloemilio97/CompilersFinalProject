@@ -303,18 +303,29 @@ def p_ID_ASSIGNMENT(p):
     shared.assign_to = var_name
     
 def p_ARRAY_ASSIGNMENT(p):
-    'ARRAY_ASSIGNMENT : ID LBRACKET EXPRESSION RBRACKET'
-    array_name = p[1]
-    expression = p[3]
-    quad_generator.gen_array_assignment_quads(array_name, expression)
-
+    'ARRAY_ASSIGNMENT : ARRAY_ACCESS'
+    pointer = p[1]
+    shared.assign_to = pointer
 
 def p_MATRIX_ASSIGNMENT(p):
-    'MATRIX_ASSIGNMENT : ID LBRACKET EXPRESSION RBRACKET LBRACKET EXPRESSION RBRACKET'
+    'MATRIX_ASSIGNMENT : MATRIX_ACCESS'
+    pointer = p[1]
+    shared.assign_to = pointer
+
+def p_ARRAY_ACCESS(p):
+    'ARRAY_ACCESS : ID LBRACKET EXPRESSION RBRACKET'
+    array_name = p[1]
+    expression = p[3]
+    pointer = quad_generator.gen_array_assignment_quads(array_name, expression)
+    p[0] = pointer
+
+def p_MATRIX_ACCESS(p):
+    'MATRIX_ACCESS : ID LBRACKET EXPRESSION RBRACKET LBRACKET EXPRESSION RBRACKET'
     matrix_name = p[1]
     expression1 = p[3]
     expression2 = p[6]
-    quad_generator.gen_matrix_assignment_quads(matrix_name, expression1, expression2)    
+    pointer = quad_generator.gen_matrix_assignment_quads(matrix_name, expression1, expression2)
+    p[0] = pointer
 
 
 def p_FUNCTION_RETURN(p):
