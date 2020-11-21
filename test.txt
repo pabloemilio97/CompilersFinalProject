@@ -1,8 +1,8 @@
 program programa;
-let int g[2][10], myVar, arr[25];
-let int myY, globalInt[10];
+let int globalInt[10], a, b;
 
-int function myFunc(int y, int x)
+
+int function myFunc(int x, int y)
 let int res;
 {
     res = x + y;
@@ -10,7 +10,10 @@ let int res;
 }
 
 main() {
-    globalInt = 10;
+
+    for (a = 7 * 5 to 100) {
+
+    }
 }
 
 

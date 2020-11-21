@@ -224,11 +224,10 @@ def p_STATEMENTS_AUX3(p):
     '''
 
 def p_ASSIGNMENT(p):
-    'ASSIGNMENT : VAR EQUALS EXPRESSION'
+    'ASSIGNMENT : VAR_ASSIGNMENT EQUALS EXPRESSION'
     assign_to = shared.assign_to
-    expression = shared.expression_stack[-1]
-    quad_generator.gen_assign_quadruples(expression, assign_to)
-    shared.expression_stack[-1].clear()    
+    expression = p[3]
+    quad_generator.gen_assign_quadruples(expression, assign_to)    
 
 def p_FUNCTION_CALL(p):
     'FUNCTION_CALL : FUNCTION_CALL_ID_AUX LPAREN FUNCTION_CALL_AUX RPAREN'
@@ -258,9 +257,8 @@ def p_FUNCTION_CALL_AUX(p):
 
 def p_PARAM_EXPRESSION(p):
     'PARAM_EXPRESSION : EXPRESSION'
-    expression = shared.expression_stack[-1]
+    expression = p[1]
     quad_generator.gen_param_quadruples(expression)
-    shared.expression_stack[-1].clear()
 
 def p_FUNCTION_CALL_AUX2(p):
     '''FUNCTION_CALL_AUX2 : COMMA PARAM_EXPRESSION FUNCTION_CALL_AUX2
@@ -268,11 +266,11 @@ def p_FUNCTION_CALL_AUX2(p):
     
 
 def p_READ_RULE(p):
-    'READ_RULE : READ LPAREN VAR READ_AUX RPAREN'
+    'READ_RULE : READ LPAREN VAR_ASSIGNMENT READ_AUX RPAREN'
     
 
 def p_READ_AUX(p):
-    '''READ_AUX : COMMA VAR READ_AUX
+    '''READ_AUX : COMMA VAR_ASSIGNMENT READ_AUX
     | empty'''
     
 
@@ -287,27 +285,37 @@ def p_WRITE_AUX(p):
 
 def p_WRITE_EXPRESSION_AUX(p):
     'WRITE_EXPRESSION_AUX : EXPRESSION'
-    expression = shared.expression_stack[-1]
+    expression = p[1]
     quad_generator.gen_write_quadruples(expression)
-    shared.expression_stack[-1].clear()
 
-def p_VAR(p):
-    '''VAR : ID
-    | ID LBRACKET EXPRESSION RBRACKET
-    | ID LBRACKET EXPRESSION RBRACKET LBRACKET EXPRESSION RBRACKET'''
+def p_VAR_ASSIGNMENT(p):
+    '''VAR_ASSIGNMENT : ID_ASSIGNMENT
+    | ARRAY_ASSIGNMENT
+    | MATRIX_ASSIGNMENT'''
+    
+
+def p_ID_ASSIGNMENT(p):
+    'ID_ASSIGNMENT : ID'
     shared.assign_to = ''
     var_name = p[1]
     if var_name not in symbol_table.func_map[shared.scope]['vars'] and var_name not in symbol_table.func_map['global']['vars']:
         error.gen_err(f'Asignando valor a variable "{var_name}" que no existe')
     shared.assign_to = var_name
-    p[0] = var_name
     
+def p_ARRAY_ASSIGNMENT(p):
+    'ARRAY_ASSIGNMENT : ID LBRACKET EXPRESSION RBRACKET'
+    array_name = p[1]
+    quad_generator.gen_array_assignment_quads(array_name)
 
+
+def p_MATRIX_ASSIGNMENT(p):
+    'MATRIX_ASSIGNMENT : ID LBRACKET EXPRESSION RBRACKET LBRACKET EXPRESSION RBRACKET'
+
+    
 def p_FUNCTION_RETURN(p):
     'FUNCTION_RETURN : RETURN EXPRESSION SEMICOLON'
-    expression = shared.expression_stack[-1]
+    expression = p[2]
     quad_generator.gen_return_quadruples(expression)
-    shared.expression_stack[-1].clear()
 
     
 
@@ -317,9 +325,8 @@ def p_IF_RULE(p):
 
 def p_EXPRESSION_AUX_IF(p):
     'EXPRESSION_AUX_IF : EXPRESSION'
-    expression = shared.expression_stack[-1]
+    expression = p[1]
     quad_generator.gen_if_quadruples(expression)
-    shared.expression_stack[-1].clear()
 
 def p_IF_AUX(p):
     '''IF_AUX : ELSE_AUX LCURLY STATEMENTS RCURLY_AUX_ELSE
@@ -344,9 +351,8 @@ def p_WHILE_WORD_AUX(p):
 
 def p_WHILE_EXPRESSION_AUX(p):
     'WHILE_EXPRESSION_AUX : EXPRESSION'
-    expression = shared.expression_stack[-1]
+    expression = p[1]
     quad_generator.gen_while_quadruples(expression)
-    shared.expression_stack[-1].clear()
 
 def p_RCURLY_WHILE_AUX(p):
     'RCURLY_WHILE_AUX : RCURLY'
@@ -370,9 +376,8 @@ def p_FOR_EXPRESSION_AUX(p):
     'FOR_EXPRESSION_AUX : EXPRESSION'
     # The last quadruple that has been generated is the assignment
     variable = shared.quadruples[-1][-1]
-    expression = shared.expression_stack[-1]
+    expression = p[1]
     quad_generator.gen_for_quadruples(variable, expression)
-    shared.expression_stack[-1].clear()
     # To know which variable corresponds to the for loop scope
     p[0] = variable
     
@@ -384,7 +389,8 @@ def p_TO_WORD_AUX(p):
 def p_EXPRESSION(p):
     'EXPRESSION : AND_EXPRESSION EXPRESSION_AUX'
     value = shared.expression_stack[-1]
-    p[0] = value
+    p[0] = value[:]
+    shared.expression_stack[-1].clear()
     
 
 def p_EXPRESSION_AUX(p):
@@ -452,7 +458,7 @@ def p_TERM_AUX2(p):
 def p_FACTOR(p):
     '''FACTOR : LPAREN_AUX EXPRESSION RPAREN_AUX
     | FACTOR_CONSTANTS
-    | VAR_AUX
+    | VAR_ACCESS
     | FUNCTION_CALL_EXPRESSION'''
     if len(p) != 4:
         factor = p[1]
@@ -489,8 +495,8 @@ def p_RPAREN_AUX(p):
     'RPAREN_AUX : RPAREN'
     shared.expression_stack[-1].append(p[1])
 
-def p_VAR_AUX(p):
-    'VAR_AUX : ID'
+def p_VAR_ACCESS(p):
+    'VAR_ACCESS : ID'
     current_func_map_vars = symbol_table.func_map[shared.scope]['vars']
     var_name = p[1]
     if var_name not in current_func_map_vars and var_name not in symbol_table.func_map[shared.scope]['params'] and var_name not in symbol_table.func_map['global']['vars']:

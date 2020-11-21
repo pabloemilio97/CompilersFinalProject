@@ -110,7 +110,8 @@ class Memory:
     global_memory = Segment(SegmentBounds(1000))
     local_memory = Segment(SegmentBounds(4000))
     tmp_memory = Segment(SegmentBounds(7000))
-    constant_memory = Segment(SegmentBounds(10000))
+    tmp_pointer_memory = Segment(SegmentBounds(10000))
+    constant_memory = Segment(SegmentBounds(13000))
     segments = [global_memory, local_memory, tmp_memory, constant_memory]
 
     def get_value(self, index):

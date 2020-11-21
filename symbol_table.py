@@ -29,6 +29,13 @@ func_map = {
     'constants': {}
 }
 
+def find_variable_scope(var_name):
+    if var_name in func_map["global"]["vars"]:
+        return "global"
+    elif var_name in func_map[shared.scope]["vars"]:
+        return shared.scope
+    gen_err(f"No se encontró variable {var_name} en scope global o local")
+
 def insert_constant(constant):
     if constant not in func_map['constants']:
         constant_type = semantic_cube.check_type(constant)
@@ -79,7 +86,9 @@ def find_register_result(operator, q2, q3):
 def insert_tmp_value(operator, q2, q3, tmp_var_name):
     type_register = semantic_cube.find_return_type(q2, q3, operator)
     insert_tmp_var(shared.scope, tmp_var_name, type_register)
-    
+
+def insert_tmp_pointer(tmp_var_name):
+    _insert_generic_local_var(shared.scope, memory.tmp_pointer_memory, tmp_var_name, "int")
 
 def insert_quadruple_reg(func_name, quadruple_reg):
     if func_name not in func_map:

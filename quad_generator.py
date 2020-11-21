@@ -30,6 +30,15 @@ def create_tmp_from_operation(operator, q2, q3):
     numerics["curr_register"] = str(old_value + 1)
     return f"t{old_value}"
 
+def create_tmp_pointer():
+    """
+    Create tmp pointer for array access in memory.
+    """
+    old_value = int(numerics["curr_pointer_register"])
+    symbol_table.insert_tmp_pointer(f'(t{old_value})')
+    numerics["curr_pointer_register"] = str(old_value + 1)
+    return f"(t{old_value})"
+
 def quad_pos():
     return str(len(quadruples))
 
@@ -95,6 +104,7 @@ def gen_for_quadruples(variable, expression):
     variable -> variable to compare to
     expression -> when variable reaches this value, cycle ends
     """
+    breakpoint()
     if len(expression) == 1:
         expression_result = expression[0]
     else:
@@ -184,6 +194,17 @@ def flush_remaining(operations_stack, operands_stack):
         curr_register = create_tmp_from_operation(operator, first_operand, second_operand)
         gen_quad(operator, first_operand, second_operand, curr_register)
         operands_stack.append(curr_register)
+
+def gen_array_assignment_quads(array_name):
+    expression_result = quadruples[-1][-1]
+    scope = symbol_table.find_variable_scope(array_name)
+    array_info = symbol_table.func_map[scope]['vars'][array_name]
+    upper_bound = array_info['dimensions'][0]
+    array_start_address = str(array_info['memory_index'])
+    gen_quad('ver', expression_result, '0', upper_bound)
+    pointer = create_tmp_pointer()
+    gen_quad('+', expression_result, array_start_address, pointer)
+    shared.assign_to = pointer
 
 
 def top(stack):
