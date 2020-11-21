@@ -211,6 +211,46 @@ def gen_array_assignment_quads(array_name, expression):
     gen_quad('+', expression_result, array_start_address, pointer)
     shared.assign_to = pointer
 
+def gen_matrix_assignment_quads(matrix_name, expression1, expression2):
+    # generate quadruples for firt dim expression
+    if len(expression1) == 1:
+        expression_result1 = expression1[0]
+    else:
+        gen_arithmetic_quadruples(expression1)
+        expression_result1 = quadruples[-1][-1]
+
+    # get matrix start address, upper bound1 and 2
+    scope = symbol_table.find_variable_scope(matrix_name)
+    matrix_info = symbol_table.func_map[scope]['vars'][matrix_name]
+    upper_bound1 = matrix_info['dimensions'][0]
+    upper_bound2 = matrix_info['dimensions'][1]
+    matrix_start_address = str(matrix_info['memory_index'])
+
+    # generate first verify
+    gen_quad('ver', expression_result1, '0', upper_bound1)
+
+    # generate tmp quad for getting right address if mat is mat[10][10] (mat[4][6]) (we need 4 * 10 + 6 to get that address)
+    tmp_register = create_tmp_from_operation('*', expression_result1, upper_bound2)
+    gen_quad('*', expression_result1, upper_bound2, tmp_register)
+
+    # generate second dim expression quadruples
+    if len(expression2) == 1:
+        expression_result2 = expression2[0]
+    else:
+        gen_arithmetic_quadruples(expression2)
+        expression_result2 = quadruples[-1][-1]
+
+    # generate second verify
+    gen_quad('ver', expression_result2, '0', upper_bound2)
+    
+    # tmp_register + second expression result
+    tmp_register2 = create_tmp_from_operation('+', tmp_register, expression_result2)
+    gen_quad('+', tmp_register, expression_result2, tmp_register2)
+
+    # pointer + 
+    pointer = create_tmp_pointer()
+    gen_quad('+', tmp_register2, matrix_start_address, pointer)
+    shared.assign_to = pointer
 
 def top(stack):
     if not stack or stack[-1] == '(': 

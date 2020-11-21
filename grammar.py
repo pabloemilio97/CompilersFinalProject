@@ -311,14 +311,17 @@ def p_ARRAY_ASSIGNMENT(p):
 
 def p_MATRIX_ASSIGNMENT(p):
     'MATRIX_ASSIGNMENT : ID LBRACKET EXPRESSION RBRACKET LBRACKET EXPRESSION RBRACKET'
+    matrix_name = p[1]
+    expression1 = p[3]
+    expression2 = p[6]
+    quad_generator.gen_matrix_assignment_quads(matrix_name, expression1, expression2)    
 
-    
+
 def p_FUNCTION_RETURN(p):
     'FUNCTION_RETURN : RETURN EXPRESSION SEMICOLON'
     expression = p[2]
     quad_generator.gen_return_quadruples(expression)
 
-    
 
 def p_IF_RULE(p):
     'IF_RULE : IF LPAREN EXPRESSION_AUX_IF RPAREN LCURLY STATEMENTS RCURLY IF_AUX'
