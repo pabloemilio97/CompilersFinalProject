@@ -1,16 +1,32 @@
 program programa;
-let int a, arr[15], globalInt[10][20];
+let int a;
+let char b;
 
 int function myFunc(int x, int y)
-let int res, myArr[4];
+let int res, globalInt[10][20];
 
 {
     res = x + y;
-    return myArr[res];
+    return res;
 }
 
 main() {
-    globalInt[5][2] = myFunc(1,2);
+    b = "f";
+    b = "";
+    if(1 > 5 * 10){
+        a = myFunc(1, 2);
+    }
+    if(1 > 5 * 10){
+        for(a = 10*15 to 150 / 2.0){
+
+        }
+    }
+    else{
+        while(5 == 10){
+
+        }
+        a = a - 15;
+    }
 
 }
 

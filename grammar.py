@@ -49,7 +49,7 @@ t_LESSTHAN     = r'<'
 t_LPAREN    = r'\('
 t_RPAREN    = r'\)'
 t_COMMA     = r'\,'
-t_CTECHAR = r'"[a-zA-Z0-9]"'
+t_CTECHAR = r'"[a-zA-Z0-9]?"'
 t_PLUS      = r'\+'
 t_MINUS     = r'-'
 t_MULTIPLY  = r'\*'
@@ -469,17 +469,11 @@ def p_FACTOR(p):
 
 def p_FACTOR_CONSTANTS(p):
     '''FACTOR_CONSTANTS : CTEI
-    | CTECHAR_AUX
+    | CTECHAR
     | CTEF'''
     constant = p[1]
     symbol_table.insert_constant(constant)
     p[0] = constant
-
-
-def p_CTECHAR_AUX(p):
-    'CTECHAR_AUX : CTECHAR'
-    char = p[1]
-    p[0] = char[1:-1]
 
 def p_FUNCTION_CALL_EXPRESSION(p):
     '''FUNCTION_CALL_EXPRESSION : FUNCTION_CALL'''

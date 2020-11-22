@@ -99,6 +99,7 @@ def gen_endwhile_quadruples():
     _gen_endloop_quadruples()
     
 def gen_endfor_quadruples(variable):
+    symbol_table.insert_constant('1')
     curr_register = create_tmp_from_operation('+', variable, '1')
     gen_quad('+', variable, '1', curr_register)
     gen_quad('=', curr_register, '', variable)

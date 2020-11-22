@@ -198,18 +198,16 @@ def _check_pointer_type(pointer):
 def check_type(input):
     if len(input) >= 2 and input[0] == '(' and input[-1] == ')':
         return _check_pointer_type(input)
+    if  2 <= len(input) <= 3 and input[0] == '"' and input[-1] == '"':
+        return "char"
     if input in symbol_table.func_map['global']['vars']:
         return symbol_table.func_map['global']['vars'][input]['type']
     if input in symbol_table.func_map[shared.scope]['vars']:
         return symbol_table.func_map[shared.scope]['vars'][input]['type']
     elif input in symbol_table.func_map[shared.scope]['params']:
         return symbol_table.func_map[shared.scope]['params'][input]['type']
-    elif input == '':
-        return 'char'
     elif input.isdigit():
         return 'int'
-    elif len(input) == 1 and not input.isnumeric():
-        return 'char'
     else:
         try: 
             float(input)
