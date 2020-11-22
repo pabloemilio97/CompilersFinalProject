@@ -98,6 +98,9 @@ class Segment:
         return None
     
     def assign_value(self, address, value):
+        """
+        Assign value at given memory address.
+        """
         type = self._get_address_type(address)
         chunk = self.chunks[type]
         chunk[address] = value

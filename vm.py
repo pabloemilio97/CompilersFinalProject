@@ -58,19 +58,23 @@ def execute(quadruple):
     
 
 def execute_arithmetic(quadruple):
-    pass
-    #operator = shared.operators[quadruple[0]]
-    #store_address = q[4]
-    #memory = shared_vm.call_stack[-1].memory
-
-
-    
+    # Get operator
+    operator = shared.operators[quadruple[1]]
+    # Get operand values
+    memory = shared_vm.call_stack[-1].memory
+    left_operand = memory.get_value(quadruple[2])
+    right_operand = memory.get_value(quadruple[3])
+    # Do the operation
+    result = operator(left_operand, right_operand)
+    # Store the operation
+    store_address = quadruple[4]
+    memory.assign_value(store_address, result)
 
 def execute_assign(quadruple):
     pass
 
 def execute_goto(quadruple):
-    pass
+    shared_vm.instruction_pointer = quadruple[4]
 
 def execute_gotoF(quadruple):
     pass

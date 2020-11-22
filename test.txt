@@ -1,7 +1,7 @@
 program programa;
 let int a;
 let char b;
-
+/*
 int function myFunc(int x, int y)
 let int res, globalInt[10][20];
 
@@ -9,8 +9,9 @@ let int res, globalInt[10][20];
     res = x + y;
     return res;
 }
-
+*/
 main() {
+    /*
     b = "f";
     b = "";
     if(1 > 5 * 10){
@@ -27,7 +28,8 @@ main() {
         }
         a = a - 15;
     }
-
+    */
+    a = 4 * 5;
 }
 
 
