@@ -2,7 +2,7 @@ import semantic_cube
 import symbol_table
 import shared
 import error
-from shared import quadruples, operands_stack, operations_stack, jump_stack, jump_operations, numerics, param_nums_stack
+from shared import quadruples, quadruples_address, operands_stack, operations_stack, jump_stack, jump_operations, numerics, param_nums_stack
 from memory import memory
 
 cube = semantic_cube.cube
@@ -53,7 +53,7 @@ def get_expression_result(expression):
     return expression_result
 
 def quad_pos():
-    return str(len(quadruples))
+    return len(quadruples)
 
 def gen_assign_quadruples(expression, assign_to):
     expression_result = get_expression_result(expression)
@@ -72,11 +72,11 @@ def gen_else_quadruples():
     # The quadruple number to which the if's gotoF will go to
     if_jump_to = int(jump_stack.pop())
     gen_quad('goto', '', '', '')
-    quadruples[if_jump_to][4] = quad_pos()
+    update_quadruples(if_jump_to)
 
 def _gen_endcondition_quadruples():
     jump_to = int(jump_stack.pop())
-    quadruples[jump_to][4] = quad_pos()
+    update_quadruples(jump_to)
 
 def gen_endelse_quadruples():
     _gen_endcondition_quadruples()
@@ -93,7 +93,7 @@ def _gen_endloop_quadruples():
     jump_to_gotoF = int(jump_stack.pop())
     jump_to_goto = jump_stack.pop()
     gen_quad('goto', '', '', jump_to_goto, False)
-    quadruples[jump_to_gotoF][4] = quad_pos()
+    update_quadruples(jump_to_gotoF)
 
 def gen_endwhile_quadruples():
     _gen_endloop_quadruples()
@@ -153,8 +153,8 @@ def gen_function_call_quads(function_name):
     function_type = symbol_table.func_map[function_name]['type']
     old_value = int(numerics["curr_register"])
     new_tmp = f't{old_value}'
-    gen_quad('=', function_name, '', new_tmp)
     symbol_table.insert_tmp_var(shared.scope, new_tmp, function_type)
+    gen_quad('=', function_name, '', new_tmp)
     numerics["curr_register"] = str(old_value + 1)
     return new_tmp
     
@@ -209,6 +209,8 @@ def _gen_array_tmp_pointer(expression_result, base_dir):
 
 def _gen_ver_quads(expression_result, upper_bound):
     upper_bound = str(int(upper_bound) - 1)
+    symbol_table.insert_constant('0')
+    symbol_table.insert_constant(upper_bound)
     gen_quad('ver', expression_result, '0', upper_bound)
 
 def gen_array_assignment_quads(array_name, expression):
@@ -216,6 +218,7 @@ def gen_array_assignment_quads(array_name, expression):
     array_info = symbol_table.func_map[scope]['vars'][array_name]
     upper_bound = array_info['dimensions'][0]
     array_start_address = array_info['memory_index']
+    symbol_table.insert_constant(str(array_start_address))
     expression_result = get_expression_result(expression)
 
     _gen_ver_quads(expression_result, upper_bound)
@@ -229,6 +232,7 @@ def gen_matrix_assignment_quads(matrix_name, expression1, expression2):
     upper_bound1 = matrix_info['dimensions'][0]
     upper_bound2 = matrix_info['dimensions'][1]
     matrix_start_address = matrix_info['memory_index']
+    symbol_table.insert_constant(str(matrix_start_address))
 
     # generate quadruples for firt dim expression
     expression_result1 = get_expression_result(expression1)
@@ -260,7 +264,42 @@ def top(stack):
     else:
         return stack[-1]
 
+def gen_address_quad(q1, q2, q3, q4):
+    
+    def transform_to_address(element):
+        # Check if it is a function
+        if element in symbol_table.func_map or element == '':
+            return element
+        elif element in symbol_table.func_map['constants']:
+            return symbol_table.func_map['constants'][element]['memory_index']
+        elif len(element) >= 2 and element[0] == '(' and element[-1] == ')':
+            element = element[1:-1]
+            scope = symbol_table.find_variable_or_param_scope(element)
+            memory_address = symbol_table.func_map[scope]['vars'][element]['memory_index']
+            return f'({memory_address})'
+
+        scope = symbol_table.find_variable_or_param_scope(element)
+        var_or_param = symbol_table.var_or_param(scope, element)
+        memory_address = symbol_table.func_map[scope][var_or_param][element]['memory_index']
+        return memory_address
+    address_values = [q2, q3, q4]
+    if q1 == "goto":
+        pass
+    elif q1 == "gotoF" or q1 == "PARAM":
+        address_values[0] = transform_to_address(address_values[0])
+    else:
+        for i in range(3):
+            address_values[i] = transform_to_address(address_values[i])
+        
+    quad = [quad_pos(), q1, address_values[0], address_values[1], address_values[2]]
+    quadruples_address.append(quad)
+
+def update_quadruples(pos):
+    quadruples[pos][-1] = quad_pos()
+    quadruples_address[pos][-1] = quad_pos()
+
 def gen_quad(q1, q2, q3, q4, shouldAppendToJump=True):
+    gen_address_quad(q1,q2,q3,q4)
     quad = [quad_pos(), q1, q2, q3, q4]
     if q1 in jump_operations and shouldAppendToJump:
         jump_stack.append(quad_pos())

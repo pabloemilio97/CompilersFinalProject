@@ -1,17 +1,17 @@
 program programa;
-let int a;
+let int a, arr[15], globalInt[10][20];
 
 int function myFunc(int x, int y)
-let int res, globalInt[10][20];
+let int res, myArr[4];
 
 {
     res = x + y;
-    a = myFunc(globalInt[3][globalInt[1][2]], 10);
-    return res;
+    return myArr[res];
 }
 
 main() {
-    a = myFunc(1, 2);
+    globalInt[5][2] = myFunc(1,2);
+
 }
 
 

@@ -29,6 +29,13 @@ func_map = {
     'constants': {}
 }
 
+def find_variable_or_param_scope(var_name):
+    if var_name in func_map["global"]["vars"]:
+        return "global"
+    elif var_name in func_map[shared.scope]["vars"] or func_map[shared.scope]["params"]:
+        return shared.scope
+    gen_err(f"No se encontró variable o parámetro '{var_name}' en scope global o local")
+
 def find_variable_scope(var_name):
     if var_name in func_map["global"]["vars"]:
         return "global"
@@ -46,12 +53,17 @@ def insert_constant(constant):
         func_map['constants'][constant] = constant_map
 
 
-
 empty_values = {
     'int': '0',
     'float': '0.0',
     'char': '',
 }
+
+def var_or_param(scope, var_name):
+    if var_name in func_map[scope]['vars']:
+        return 'vars'
+    elif var_name in func_map[scope]['params']:
+        return 'params'
 
 def find_variable_attribute(var_name, attribute):
     if var_name in func_map[shared.scope]['vars']:

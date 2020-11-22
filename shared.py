@@ -8,12 +8,12 @@ expression_stack = [[]]
 param_nums_stack = []
 function_call_names_stack = []
 quadruples = []
-quadruples_mem = []
+quadruples_address = []
 operands_stack = []
 operations_stack = []
 jump_stack = []
 jump_operations = {
-    'gotoF', 'gotoT', 'goto'
+    'gotoF', 'goto'
 }
 numerics = {
     "curr_register": 0,

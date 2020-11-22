@@ -89,7 +89,7 @@ def p_MAIN_RULE(p):
 def p_MAIN_AUX(p):
     'MAIN_AUX : MAIN'
     main_pos = int(shared.jump_stack.pop())
-    shared.quadruples[main_pos][-1] = quad_generator.quad_pos()
+    quad_generator.update_quadruples(main_pos)
     function_name = p[1] # function name is main here
     symbol_table.insert_function(function_name) # Inserting function into symbol table
     shared.scope = function_name
@@ -574,9 +574,11 @@ parser.parse(data)
 # Add last quadruple
 quad_generator.gen_quad('ENDPROG', '', '', '')
 
-for q in shared.quadruples:
-    print(q)
+for i in range(len(shared.quadruples)):
+    print(shared.quadruples[i], "\t\t", shared.quadruples_address[i])
+
 pprint = pprint.PrettyPrinter(indent=4)
 pprint.pprint(symbol_table.func_map)
 print(memory)
+
 # symbol_table.print_func_map()
