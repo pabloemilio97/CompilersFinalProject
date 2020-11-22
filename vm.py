@@ -66,6 +66,10 @@ def execute_arithmetic(quadruple):
     right_operand = memory.get_value(quadruple[3])
     # Do the operation
     result = operator(left_operand, right_operand)
+    if result is True:
+        result = 1
+    elif result is False:
+        result = 0
     # Store the operation
     store_address = quadruple[4]
     memory.assign_value(store_address, result)

@@ -29,8 +29,8 @@ int_float_operator_map = {
     ">=": "int",
     "==": "int",
     "!=": "int",
-    "&": "int",
-    "|": "int",
+    "&": "invalid",
+    "|": "invalid",
 }
 
 int_char_operator_map = {
@@ -59,8 +59,8 @@ float_int_operator_map = {
     ">=": "int",
     "==": "int",
     "!=": "int",
-    "&": "int",
-    "|": "int",
+    "&": "invalid",
+    "|": "invalid",
 }
 
 float_float_operator_map = {
