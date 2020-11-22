@@ -1,5 +1,6 @@
 import error
 import semantic_cube
+import math
 
 class SegmentBounds:
     INT_MIN = 0
@@ -73,7 +74,10 @@ class Segment:
             space *= d
         
         return self._allocate_memory(type, space)
-
+    
+    def vm_push_constant(self, address, type, value):
+        chunk = self.chunks[type]
+        chunk[address] = value
 
 
     def get_value(self, index):
@@ -105,7 +109,66 @@ class Segment:
             s += f"{type} chunk -> {str(chunk)}\n"
         return s
 
-class Memory:
+class VirtualMemory:
+    # static variables, balonging to class and not to object
+    global_memory = Segment(SegmentBounds(1000))
+    constant_memory = Segment(SegmentBounds(13000))
+    
+    def __init__(self):
+        self.local_memory = Segment(SegmentBounds(4000))
+        self.tmp_memory = Segment(SegmentBounds(7000))
+        self.tmp_pointer_memory = Segment(SegmentBounds(10000))
+
+        self.address_memory = {
+            (1000, 4000): self.global_memory,
+            (4000, 7000): self.local_memory,
+            (7000, 10000): self.tmp_memory,
+            (10000, 13000): self.tmp_pointer_memory,
+            (13000, math.inf): self.constant_memory,
+        }
+
+    def get_value(self, index):
+        # Is a pointer
+        if isinstance(index, str):
+            index = int(index[1:-1])
+            value = self.tmp_pointer_memory.get_value(index)
+            value = self.tmp_pointer_memory.get_value(value)
+            return value
+        value = None
+        for segment in list(self.address_memory.values()):
+            value = segment.get_value(index)
+            if value is not None:
+                return value
+        error.gen_err(f"Índice de memoria {index} no encontrado.")
+        return None
+    
+    def vm_push_constant(self, constant, address, type):
+        mem = None
+        value = semantic_cube.get_constant_value(constant, type)
+        for lower, upper in self.address_memory:
+            if lower <= address < upper:
+                mem = self.address_memory[(lower, upper)]
+                break
+        mem.vm_push_constant(address, type, value)
+    # 
+    # def vm_update(self, scope, constant, address, type):
+        # mem = None
+        # value = semantic_cube.get_constant_value()
+        # for lower, upper in self.address_memory:
+            # if lower <= address < upper:
+                # mem = self.address_memory[(lower, upper)]
+                # break
+        # mem.vm_push(scope, address, type, value)
+# 
+    # For debugging purposes
+    def __str__(self):
+        g = f"global_memory\n-------------------\n{self.global_memory}\n"
+        l = f"local_memory\n-------------------\n{self.local_memory}\n"
+        t = f"tmp_memory\n-------------------\n{self.tmp_memory}\n"
+        c = f"constant_memory\n-------------------\n{self.constant_memory}\n"
+        return f"{g}\n{l}\n{t}\n{c}"
+
+class CompilationMemory:
     # static variables, balonging to class and not to object
     global_memory = Segment(SegmentBounds(1000))
     local_memory = Segment(SegmentBounds(4000))
@@ -114,15 +177,7 @@ class Memory:
     constant_memory = Segment(SegmentBounds(13000))
     segments = [global_memory, local_memory, tmp_memory, constant_memory]
 
-    def get_value(self, index):
-        value = None
-        for segment in self.segments:
-            value = segment.get_value(index)
-            if value is not None:
-                return value
-        error.gen_err(f"Índice de memoria {index} no encontrado.")
-        return None
-    
+
     def get_address_type(self, address):
         for segment in self.segments:
             bounds = segment.segment_bounds
@@ -143,5 +198,5 @@ class Memory:
         return f"{g}\n{l}\n{t}\n{c}"
 
 
-memory = Memory()
+compilation_mem = CompilationMemory()
     

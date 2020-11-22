@@ -9,8 +9,9 @@ import symbol_table
 import error
 import quad_generator
 import pprint
-from memory import memory
+from memory import compilation_mem
 import semantic_cube
+import vm
 
 reserved = {
     'program': 'PROGRAM',
@@ -571,10 +572,10 @@ quad_generator.gen_quad('ENDPROG', '', '', '')
 for i in range(len(shared.quadruples)):
     print(shared.quadruples[i], "\t\t", shared.quadruples_address[i])
 
-vm.run(quadruples_address, shared.func_map)
+vm.run(shared.quadruples_address, symbol_table.func_map)
 
 pprint = pprint.PrettyPrinter(indent=4)
 pprint.pprint(symbol_table.func_map)
-print(memory)
+print(compilation_mem)
 
 # symbol_table.print_func_map()

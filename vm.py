@@ -1,10 +1,29 @@
 import shared
+import shared_vm
+from memory import VirtualMemory
 
-instruction_pointer = 0
+class State:
+    def __init__(self, scope, return_type, memory):
+        self.scope = scope
+        self.return_type = return_type
+        self.memory = memory
+
+
+def insert_constants_memory(main_memory, constants):
+    for constant, attr in constants.items():
+        type = attr["type"]
+        main_memory.vm_push_constant(constant, attr["memory_index"], type)
+
 def run(quadruples, func_map):
+    # Insert constants into memory
+    main_memory = VirtualMemory()
+    insert_constants_memory(main_memory, func_map["constants"])
+    main_state = State("main", "void", main_memory)
+    shared_vm.call_stack = [main_state]
+
     endprog_register = len(quadruples) - 1
-    while instruction_pointer != endprog_register:
-        quadruple = quadruples[instruction_pointer]
+    while shared_vm.instruction_pointer != endprog_register:
+        quadruple = quadruples[shared_vm.instruction_pointer]
         execute(quadruple)
 
 def execute(quadruple):

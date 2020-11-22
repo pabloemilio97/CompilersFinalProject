@@ -216,22 +216,13 @@ def check_type(input):
             error.gen_err(f'no se puede hacer operaciones con input "{input}"')
 
 
-def get_constant_value(input):
-    input_type = check_type(input)
-    if input_type == 'int':
+def get_constant_value(input, type):
+    if type == 'int':
         input_result = int(input)
-    elif input_type == 'float':
+    elif type == 'float':
         input_result = float(input)
     else:
-        input_result = input
+        input_result = input[1:-1]
     return input_result
-
-
-def get_value(input):
-    value = symbol_table.find_variable_attribute(input, 'value')
-    if value is not None:
-        return value
-    else:
-        return get_constant_value(input)
         
     

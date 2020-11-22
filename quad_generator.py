@@ -3,7 +3,7 @@ import symbol_table
 import shared
 import error
 from shared import quadruples, quadruples_address, operands_stack, operations_stack, jump_stack, jump_operations, numerics, param_nums_stack
-from memory import memory
+from memory import compilation_mem
 
 cube = semantic_cube.cube
 func_map = symbol_table.func_map
@@ -35,7 +35,7 @@ def create_tmp_pointer(base_dir):
     """
     Create tmp pointer for array access in memory.
     """
-    pointed_type = memory.get_address_type(base_dir)
+    pointed_type = compilation_mem.get_address_type(base_dir)
     old_value = int(numerics["curr_register"])
     symbol_table.insert_tmp_pointer(f't{old_value}', pointed_type)
     numerics["curr_register"] = str(old_value + 1)
@@ -119,8 +119,8 @@ def gen_for_quadruples(variable, expression):
 
 def gen_endfunc_quadruple():
     gen_quad('ENDFUNC', '', '', '')
-    memory.local_memory.flush()
-    memory.tmp_memory.flush()
+    compilation_mem.local_memory.flush()
+    compilation_mem.tmp_memory.flush()
 
 def _gen_generic_quadruples(operation, expression):
     expression_result = get_expression_result(expression)
