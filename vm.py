@@ -1,5 +1,6 @@
 import shared
 import shared_vm
+import semantic_cube
 from memory import VirtualMemory
 
 class State:
@@ -12,7 +13,8 @@ class State:
 def insert_constants_memory(main_memory, constants):
     for constant, attr in constants.items():
         type = attr["type"]
-        main_memory.vm_push_constant(constant, attr["memory_index"], type)
+        value = semantic_cube.get_constant_value(constant, type)
+        main_memory.assign_value(attr["memory_index"], value)
 
 def run(quadruples, func_map):
     # Insert constants into memory
@@ -57,6 +59,12 @@ def execute(quadruple):
 
 def execute_arithmetic(quadruple):
     pass
+    #operator = shared.operators[quadruple[0]]
+    #store_address = q[4]
+    #memory = shared_vm.call_stack[-1].memory
+
+
+    
 
 def execute_assign(quadruple):
     pass

@@ -59,6 +59,16 @@ class Segment:
             raise TypeError
 
         return index
+    
+    def _get_address_type(self, address):
+        bounds = self.segment_bounds
+        if bounds.INT_MIN <= address <= bounds.INT_MAX:
+            return "int"
+        elif bounds.FLOAT_MIN <= address <= bounds.FLOAT_MAX:
+            return "float"
+        elif bounds.CHAR_MIN <= address <= bounds.CHAR_MAX:
+            return "char"
+        error.gen_err(f"Dirección de memoria {address} fuera de rango.")
 
     def compile_push(self, type, dimensions=None):
         """
@@ -74,22 +84,25 @@ class Segment:
             space *= d
         
         return self._allocate_memory(type, space)
+
+
+    def get_value(self, address):
+        """
+        Get value from memory at the given address.
+        """
+        for chunk in self.chunks.values():
+            try:
+                return chunk[address]
+            except KeyError:
+                pass
+        return None
     
-    def vm_push_constant(self, address, type, value):
+    def assign_value(self, address, value):
+        type = self._get_address_type(address)
         chunk = self.chunks[type]
         chunk[address] = value
 
 
-    def get_value(self, index):
-        """
-        Get value from memory at the given index.
-        """
-        for chunk in self.chunks.values():
-            try:
-                return chunk[index]
-            except KeyError:
-                pass
-        return None
     
     def flush(self):
         """
@@ -127,6 +140,14 @@ class VirtualMemory:
             (13000, math.inf): self.constant_memory,
         }
 
+    def _get_segment(self, address):
+        segment = None
+        for lower, upper in self.address_memory:
+            if lower <= address < upper:
+                segment = self.address_memory[(lower, upper)]
+                return segment
+        error.gen_err(f"Dirección de memoria incorrecta '{address}'.")
+
     def get_value(self, index):
         # Is a pointer
         if isinstance(index, str):
@@ -141,25 +162,11 @@ class VirtualMemory:
                 return value
         error.gen_err(f"Índice de memoria {index} no encontrado.")
         return None
-    
-    def vm_push_constant(self, constant, address, type):
-        mem = None
-        value = semantic_cube.get_constant_value(constant, type)
-        for lower, upper in self.address_memory:
-            if lower <= address < upper:
-                mem = self.address_memory[(lower, upper)]
-                break
-        mem.vm_push_constant(address, type, value)
-    # 
-    # def vm_update(self, scope, constant, address, type):
-        # mem = None
-        # value = semantic_cube.get_constant_value()
-        # for lower, upper in self.address_memory:
-            # if lower <= address < upper:
-                # mem = self.address_memory[(lower, upper)]
-                # break
-        # mem.vm_push(scope, address, type, value)
-# 
+
+    def assign_value(self, address, value):
+        segment = self._get_segment(address)
+        segment.assign_value(address, value)
+ 
     # For debugging purposes
     def __str__(self):
         g = f"global_memory\n-------------------\n{self.global_memory}\n"
