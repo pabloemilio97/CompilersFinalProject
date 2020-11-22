@@ -571,6 +571,8 @@ quad_generator.gen_quad('ENDPROG', '', '', '')
 for i in range(len(shared.quadruples)):
     print(shared.quadruples[i], "\t\t", shared.quadruples_address[i])
 
+vm.run(quadruples_address, shared.func_map)
+
 pprint = pprint.PrettyPrinter(indent=4)
 pprint.pprint(symbol_table.func_map)
 print(memory)
