@@ -14,3 +14,4 @@ def gen_err(msg):
 def gen_runtime_err(msg):
     print('RUNTIME ERROR')
     print(msg)
+    sys.exit()
