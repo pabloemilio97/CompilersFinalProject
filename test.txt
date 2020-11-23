@@ -1,6 +1,7 @@
 program programa;
-let int a;
-let char b;
+let int a[10];
+let int b;
+
 /*
 int function myFunc(int x, int y)
 let int res, globalInt[10][20];
@@ -10,26 +11,16 @@ let int res, globalInt[10][20];
     return res;
 }
 */
+
 main() {
-    /*
-    b = "f";
-    b = "";
-    if(1 > 5 * 10){
-        a = myFunc(1, 2);
+    b = 1;
+    while (b <= 10) {
+        a[b - 1] = b;
+        b = b + 1;
     }
-    if(1 > 5 * 10){
-        for(a = 10*15 to 150 / 2.0){
-
-        }
+    for (b = 0 to 10) {
+        write(a[b]);
     }
-    else{
-        while(5 == 10){
-
-        }
-        a = a - 15;
-    }
-    */
-    a = 4 * 5;
 }
 
 
