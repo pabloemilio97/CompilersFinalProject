@@ -213,7 +213,7 @@ def check_type(input):
             float(input)
             return 'float'
         except:
-            error.gen_err(f'no se puede hacer operaciones con input "{input}"')
+            error.gen_err(f'No se puede hacer operaciones con input "{input}"')
 
 
 def get_constant_value(input, type):

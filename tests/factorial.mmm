@@ -1,0 +1,25 @@
+program factorial;
+let int a;
+let int fac;
+let int memo[101];
+
+int function factorial(int x)
+{
+    if(memo[x] == 0 - 1){
+        memo[x] = factorial(x-1) * x;
+    }
+    return memo[x];
+}
+
+main() {
+    fac = 100;
+    for (a = 0 to fac + 1) {
+        memo[a] = 0 - 1;
+    }
+    memo[0] = 1;
+    memo[1] = 1;
+    a = factorial(fac);
+    for (a = 0 to fac) {
+        write(memo[a]);
+    }
+}

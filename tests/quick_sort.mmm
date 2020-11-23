@@ -1,0 +1,58 @@
+program quickSort;
+let int a, arr[101];
+/*
+void function swap(int i, int j)
+let int tmp;
+{
+    tmp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = tmp;
+}
+
+int function partition (int low, int high)
+let int i, j, pivot;
+{
+    // pivot (Element to be placed at right position)
+    pivot = arr[high];  
+ 
+    i = low - 1;  // Index of smaller element
+
+    for (j = low to high){
+        // If current element is smaller than the pivot
+        if (arr[j] < pivot)
+        {
+            i = i + 1;    // increment index of smaller element
+            swap(i, j);
+        }
+    }
+    swap(i + 1, high);
+    return i + 1;
+}
+
+void function quickSort(int low, int high)
+let int pi;
+{
+    if (low < high){
+        pi = partition(low, high);
+
+        quickSort(low, pi - 1);
+        quickSort(pi + 1, high);
+    }
+}
+*/
+main() {
+    a = 1 + (100 * (5+1));
+    /*
+    //initialize array backwards
+    while (a >= 0) {
+        arr[a] = (1 + 1);
+        //arr[(a - 100) * (0 - 1)] = a;
+        a = a - 1;
+    }
+    //quickSort(0, 100);
+    //print array
+    for (a = 0 to 101) {
+        write(arr[a]);
+    }
+    */
+}

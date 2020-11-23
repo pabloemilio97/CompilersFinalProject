@@ -455,6 +455,11 @@ def p_EXPRESSION(p):
     p[0] = value[:]
     shared.expression_stack[-1].clear()
 
+def p_EXPRESSION_NO_CLEAR(p):
+    'EXPRESSION_NO_CLEAR : AND_EXPRESSION EXPRESSION_AUX'
+    value = shared.expression_stack[-1]
+    p[0] = value[:]
+
 
 def p_EXPRESSION_AUX(p):
     '''EXPRESSION_AUX : OR EXPRESSION
@@ -523,7 +528,7 @@ def p_TERM_AUX2(p):
 
 
 def p_FACTOR(p):
-    '''FACTOR : LPAREN_AUX EXPRESSION RPAREN_AUX
+    '''FACTOR : LPAREN_AUX EXPRESSION_NO_CLEAR RPAREN_AUX
     | FACTOR_CONSTANTS
     | VAR_ACCESS
     | ARRAY_ACCESS
