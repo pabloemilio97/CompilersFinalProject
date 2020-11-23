@@ -3,14 +3,16 @@ import shared_vm
 import semantic_cube
 import print_file
 import error
+import copy
 from memory import VirtualMemory
 
 
 class State:
-    def __init__(self, scope, return_type, memory):
+    def __init__(self, scope, return_type, memory, instruction_pointer):
         self.scope = scope
         self.return_type = return_type
         self.memory = memory
+        self.instruction_pointer = instruction_pointer
 
 
 def insert_constants_memory(main_memory, constants):
@@ -24,16 +26,17 @@ def run(quadruples, func_map):
     # Insert constants into memory
     main_memory = VirtualMemory()
     insert_constants_memory(main_memory, func_map["constants"])
-    main_state = State("main", "void", main_memory)
+    main_state = State("main", "void", main_memory,
+                       shared_vm.instruction_pointer)
     shared_vm.call_stack = [main_state]
 
     endprog_register = len(quadruples) - 1
     while shared_vm.instruction_pointer != endprog_register:
         quadruple = quadruples[shared_vm.instruction_pointer]
-        execute(quadruple)
+        execute(quadruple, func_map, quadruples)
 
 
-def execute(quadruple):
+def execute(quadruple, func_map, quadruples):
     operation = quadruple[1]
     # ARITHEMTIC
     if operation in shared.operators:
@@ -48,15 +51,13 @@ def execute(quadruple):
         execute_gotoF(quadruple)
     # FUNCTIONS
     elif operation == "ERA":
-        execute_ERA(quadruple)
+        execute_ERA(quadruple, func_map)
     elif operation == "PARAM":
-        execute_PARAM(quadruple)
+        execute_PARAM(quadruple, func_map)
     elif operation == "GOSUB":
-        execute_GOSUB(quadruple)
+        execute_GOSUB(quadruple, func_map)
     elif operation == "RETURN":
-        execute_RETURN(quadruple)
-    elif operation == "RETURN":
-        execute_RETURN(quadruple)
+        execute_RETURN(quadruple, quadruples)
     # ARRAYS
     elif operation == "ver":
         execute_ver(quadruple)
@@ -65,6 +66,7 @@ def execute(quadruple):
         execute_write(quadruple)
 
     shared_vm.instruction_pointer += 1
+    shared_vm.call_stack[-1].instruction_pointer = shared_vm.instruction_pointer
 
 
 def execute_arithmetic(quadruple):
@@ -95,6 +97,7 @@ def execute_assign(quadruple):
 def execute_goto(quadruple):
     shared_vm.instruction_pointer = quadruple[4]
     shared_vm.instruction_pointer -= 1
+    shared_vm.call_stack[-1].instruction_pointer = shared_vm.instruction_pointer
 
 
 def execute_gotoF(quadruple):
@@ -104,20 +107,52 @@ def execute_gotoF(quadruple):
         execute_goto(quadruple)
 
 
-def execute_ERA(quadruple):
-    pass
+def execute_ERA(quadruple, func_map):
+    func_name = quadruple[4]
+    start_func_reg = func_map[func_name]['quadruple_reg']
+    func_return_type = func_map[func_name]['type']
+    func_memory = VirtualMemory()
+    func_state = State(func_name, func_return_type,
+                       func_memory, start_func_reg)
+    shared_vm.preparing_state = func_state
 
 
-def execute_PARAM(quadruple):
-    pass
+def execute_PARAM(quadruple, func_map):
+    param_value = shared_vm.call_stack[-1].memory.get_value(quadruple[2])
+    scope = shared_vm.preparing_state.scope
+    memory = shared_vm.preparing_state.memory
+    param_index = int(quadruple[4][-1]) - 1
+    param_memory_index = list(func_map[scope]['params'].values())[
+        param_index]['memory_index']
+    memory.assign_value(param_memory_index, param_value)
 
 
-def execute_GOSUB(quadruple):
-    pass
+def execute_GOSUB(quadruple, func_map):
+    func_name = quadruple[4]
+    func_instruction_pointer = func_map[func_name]['quadruple_reg']
+    # Add one to current scope
+    shared_vm.call_stack[-1].instruction_pointer += 1
+    shared_vm.instruction_pointer = func_instruction_pointer
+    # Append copy of preparing state
+    shared_vm.call_stack.append(copy.deepcopy(shared_vm.preparing_state))
+    shared_vm.preparing_state = None
+    # Compensate always adding one
+    shared_vm.instruction_pointer -= 1
+    # Make top of call stack pointer = to global pointer
+    shared_vm.call_stack[-1].instruction_pointer = shared_vm.instruction_pointer
 
 
-def execute_RETURN(quadruple):
-    pass
+def execute_RETURN(quadruple, quadruples):
+    memory = shared_vm.call_stack[-1].memory
+    return_value = memory.get_value(quadruple[4])
+    shared_vm.call_stack.pop()
+    # return global pointer
+    shared_vm.instruction_pointer = shared_vm.call_stack[-1].instruction_pointer
+    assign_quad = quadruples[shared_vm.instruction_pointer]
+    address_to_assign = assign_quad[4]
+    # assign return value to address to assign
+    shared_vm.call_stack[-1].memory.assign_value(
+        address_to_assign, return_value)
 
 
 def execute_ver(quadruple):
