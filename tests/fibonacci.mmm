@@ -1,37 +1,25 @@
 program programa;
 let int a;
+let int fib;
 let int memo[101];
 
 int function fibonacci(int x)
-let int fibonacciPrevPrev;
-let int fibonacciPrev;
 {
-    if (x == 0) {
-        memo[0] = 0;
-    } else {
-        if (x == 1) {
-            memo[1] = 1;
-        } else {
-            if (memo[x - 1] != 0 - 1) {
-                fibonacciPrev = memo[x - 1];
-            } else {
-                fibonacciPrev = fibonacci(x - 1);
-            }
-            if (memo[x - 2] != 0 - 1) {
-                fibonacciPrevPrev = memo[x - 2];
-            } else {
-                fibonacciPrevPrev = fibonacci(x - 2);
-            }
-            memo[x] = fibonacciPrev +  fibonacciPrevPrev;
-        }
+    if(memo[x] == 0 - 1){
+        memo[x] = fibonacci(x-1) + fibonacci(x-2);
     }
     return memo[x];
 }
 
 main() {
-    for (a = 0 to 101) {
+    fib = 100;
+    for (a = 0 to fib + 1) {
         memo[a] = 0 - 1;
     }
-    a = fibonacci(15);
-    write(a);
+    memo[0] = 0;
+    memo[1] = 1;
+    a = fibonacci(fib);
+    for (a = 0 to fib) {
+        write(memo[a]);
+    }
 }

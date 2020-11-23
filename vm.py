@@ -134,7 +134,7 @@ def execute_GOSUB(quadruple, func_map):
     shared_vm.call_stack[-1].instruction_pointer += 1
     shared_vm.instruction_pointer = func_instruction_pointer
     # Append copy of preparing state
-    shared_vm.call_stack.append(copy.deepcopy(shared_vm.preparing_state))
+    shared_vm.call_stack.append(shared_vm.preparing_state)
     shared_vm.preparing_state = None
     # Compensate always adding one
     shared_vm.instruction_pointer -= 1

@@ -172,7 +172,7 @@ class VirtualMemory:
         if isinstance(address, str):
             address = int(address[1:-1])
             # address will become value from address that is and address
-            address = self.tmp_pointer_memory.get_value(address)
+            address = self.get_value(address)
         segment = self._get_segment(address)
         segment.assign_value(address, value)
 
