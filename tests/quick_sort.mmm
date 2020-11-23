@@ -25,9 +25,7 @@ let int i, j, pivot;
             swap(i, j);
         }
     }
-    write("a");
     swap(i + 1, high);
-    write("a");
     return i + 1;
 }
 

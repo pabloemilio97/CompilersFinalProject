@@ -133,13 +133,14 @@ def execute_GOSUB(quadruple, func_map):
     func_name = quadruple[4]
     func_instruction_pointer = func_map[func_name]['quadruple_reg']
     # Add one to current scope
-    shared_vm.call_stack[-1].instruction_pointer += 1
-    shared_vm.instruction_pointer = func_instruction_pointer
+    # shared_vm.call_stack[-1].instruction_pointer += 1
+    # Compensate always adding one
+    shared_vm.instruction_pointer = func_instruction_pointer - 1
+
     # Append copy of preparing state
     shared_vm.call_stack.append(shared_vm.preparing_state)
     shared_vm.preparing_state = None
-    # Compensate always adding one
-    shared_vm.instruction_pointer -= 1
+
     # Make top of call stack pointer = to global pointer
     shared_vm.call_stack[-1].instruction_pointer = shared_vm.instruction_pointer
 
@@ -150,16 +151,16 @@ def execute_RETURN(quadruple, quadruples):
     # return global pointer
     prev_memory = shared_vm.call_stack[-2]
     prev_pointer = prev_memory.instruction_pointer
-    assign_quad = quadruples[prev_pointer]
+    assign_quad = quadruples[prev_pointer + 1]
     # check if prev state expects a return value
     if assign_quad[2] == shared_vm.call_stack[-1].scope:
         address_to_assign = assign_quad[4]
         # assign return value to address to assign
         prev_memory.memory.assign_value(
             address_to_assign, return_value)
-    else:
-        # If we didnt execute = quadruple, execute current quadruple of past state
-        shared_vm.call_stack[-2].instruction_pointer -= 1
+        # Skip the assign quadruple we just executed
+        shared_vm.call_stack[-2].instruction_pointer += 1
+        
 
 def execute_ENDFUNC(quadruple):
     shared_vm.call_stack.pop()
