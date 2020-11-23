@@ -12,6 +12,7 @@ import pprint
 from memory import compilation_mem
 import semantic_cube
 import vm
+import os
 
 reserved = {
     'program': 'PROGRAM',
@@ -611,24 +612,21 @@ lexer = lex.lex()
 
 parser = yacc.yacc(debug=False, write_tables=False)
 
+test_files = os.listdir('./tests')
 
-aux = int(input("1.Valido\n2.No valido\n3.Probar de documento 'test.txt'\n"))
+print('Choose a file to test dog')
+
+for i, test_file in enumerate(test_files):
+    print(i + 1, test_file)
 
 data = ""
-
-if (aux == 1):
-    data = '''program myprogram;{
-    }'''
-
-elif (aux == 2):
-    data = '''prog 1'''
-
-elif (aux == 3):
-    f = open("test.txt", "r")
-    if f.mode == 'r':
-        data = f.read()
-    else:
-        print("File is invalid")
+aux = int(input())
+file_chosen = test_files[aux - 1]
+f = open(f'./tests/{file_chosen}', "r")
+if f.mode == 'r':
+    data = f.read()
+else:
+    error.gen_err("Pusiste el numero del archivo mal perro")
 
 lexer.input(data)
 
