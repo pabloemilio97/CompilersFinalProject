@@ -3,6 +3,7 @@ import shared_vm
 import semantic_cube
 from memory import VirtualMemory
 
+
 class State:
     def __init__(self, scope, return_type, memory):
         self.scope = scope
@@ -16,6 +17,7 @@ def insert_constants_memory(main_memory, constants):
         value = semantic_cube.get_constant_value(constant, type)
         main_memory.assign_value(attr["memory_index"], value)
 
+
 def run(quadruples, func_map):
     # Insert constants into memory
     main_memory = VirtualMemory()
@@ -28,20 +30,21 @@ def run(quadruples, func_map):
         quadruple = quadruples[shared_vm.instruction_pointer]
         execute(quadruple)
 
+
 def execute(quadruple):
     operation = quadruple[1]
-    #ARITHEMTIC
+    # ARITHEMTIC
     if operation in shared.operators:
         execute_arithmetic(quadruple)
-    #ASSIGNMENT
+    # ASSIGNMENT
     elif operation == "=":
         execute_assign(quadruple)
-    #JUMPS
+    # JUMPS
     elif operation == "goto":
         execute_goto(quadruple)
     elif operation == "gotoF":
         execute_gotoF(quadruple)
-    #FUNCTIONS
+    # FUNCTIONS
     elif operation == "ERA":
         execute_ERA(quadruple)
     elif operation == "PARAM":
@@ -52,10 +55,10 @@ def execute(quadruple):
         execute_RETURN(quadruple)
     elif operation == "RETURN":
         execute_RETURN(quadruple)
-    #ARRAYS
+    # ARRAYS
     elif operation == "ver":
         execute_ver(quadruple)
-    
+
 
 def execute_arithmetic(quadruple):
     # Get operator
@@ -74,26 +77,34 @@ def execute_arithmetic(quadruple):
     store_address = quadruple[4]
     memory.assign_value(store_address, result)
 
+
 def execute_assign(quadruple):
     pass
+
 
 def execute_goto(quadruple):
     shared_vm.instruction_pointer = quadruple[4]
 
+
 def execute_gotoF(quadruple):
     pass
+
 
 def execute_ERA(quadruple):
     pass
 
+
 def execute_PARAM(quadruple):
     pass
+
 
 def execute_GOSUB(quadruple):
     pass
 
+
 def execute_RETURN(quadruple):
     pass
+
 
 def execute_ver(quadruple):
     pass
