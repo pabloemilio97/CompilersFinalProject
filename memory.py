@@ -2,6 +2,7 @@ import error
 import semantic_cube
 import math
 
+
 class SegmentBounds:
     INT_MIN = 0
     INT_MAX = 999
@@ -32,6 +33,7 @@ class Segment:
     total memory. For example, we'll have an instance for global memory,
     another one for local memory, another one for temp memory.
     """
+
     def __init__(self, segment_bounds):
         self.segment_bounds = segment_bounds
         self.int_index = segment_bounds.INT_MIN
@@ -44,7 +46,7 @@ class Segment:
             "float": {},
             "char": {},
         }
-    
+
     def _allocate_memory(self, type, space=1):
         if type == "int":
             self.int_index += space
@@ -59,7 +61,7 @@ class Segment:
             raise TypeError
 
         return index
-    
+
     def _get_address_type(self, address):
         bounds = self.segment_bounds
         if bounds.INT_MIN <= address <= bounds.INT_MAX:
@@ -77,14 +79,13 @@ class Segment:
         """
         if dimensions is None:
             return self._allocate_memory(type)
-        
+
         space = 1
         for d in dimensions:
             d = int(d)
             space *= d
-        
-        return self._allocate_memory(type, space)
 
+        return self._allocate_memory(type, space)
 
     def get_value(self, address):
         """
@@ -96,7 +97,7 @@ class Segment:
             except KeyError:
                 pass
         return None
-    
+
     def assign_value(self, address, value):
         """
         Assign value at given memory address.
@@ -105,8 +106,6 @@ class Segment:
         chunk = self.chunks[type]
         chunk[address] = value
 
-
-    
     def flush(self):
         """
         Reset chunks and indexes.
@@ -117,7 +116,7 @@ class Segment:
         self.chunks["int"] = {}
         self.chunks["float"] = {}
         self.chunks["char"] = {}
-    
+
     def __str__(self):
         s = ""
         s += str(self.segment_bounds)
@@ -125,11 +124,12 @@ class Segment:
             s += f"{type} chunk -> {str(chunk)}\n"
         return s
 
+
 class VirtualMemory:
     # static variables, balonging to class and not to object
     global_memory = Segment(SegmentBounds(1000))
     constant_memory = Segment(SegmentBounds(13000))
-    
+
     def __init__(self):
         self.local_memory = Segment(SegmentBounds(4000))
         self.tmp_memory = Segment(SegmentBounds(7000))
@@ -145,6 +145,8 @@ class VirtualMemory:
 
     def _get_segment(self, address):
         segment = None
+        if isinstance(address, str):
+            address = int(address[1:-1])
         for lower, upper in self.address_memory:
             if lower <= address < upper:
                 segment = self.address_memory[(lower, upper)]
@@ -155,8 +157,8 @@ class VirtualMemory:
         # Is a pointer
         if isinstance(index, str):
             index = int(index[1:-1])
-            value = self.tmp_pointer_memory.get_value(index)
-            value = self.tmp_pointer_memory.get_value(value)
+            value = self.get_value(index)
+            value = self.get_value(value)
             return value
         value = None
         for segment in list(self.address_memory.values()):
@@ -167,16 +169,22 @@ class VirtualMemory:
         return None
 
     def assign_value(self, address, value):
+        if isinstance(address, str):
+            address = int(address[1:-1])
+            # address will become value from address that is and address
+            address = self.tmp_pointer_memory.get_value(address)
         segment = self._get_segment(address)
         segment.assign_value(address, value)
- 
+
     # For debugging purposes
     def __str__(self):
         g = f"global_memory\n-------------------\n{self.global_memory}\n"
         l = f"local_memory\n-------------------\n{self.local_memory}\n"
         t = f"tmp_memory\n-------------------\n{self.tmp_memory}\n"
+        p = f"tmp_pointer_memory\n-------------------\n{self.tmp_pointer_memory}\n"
         c = f"constant_memory\n-------------------\n{self.constant_memory}\n"
-        return f"{g}\n{l}\n{t}\n{c}"
+        return f"{g}\n{l}\n{t}\n{p}\n{c}"
+
 
 class CompilationMemory:
     # static variables, balonging to class and not to object
@@ -186,7 +194,6 @@ class CompilationMemory:
     tmp_pointer_memory = Segment(SegmentBounds(10000))
     constant_memory = Segment(SegmentBounds(13000))
     segments = [global_memory, local_memory, tmp_memory, constant_memory]
-
 
     def get_address_type(self, address):
         for segment in self.segments:
@@ -204,9 +211,9 @@ class CompilationMemory:
         g = f"global_memory\n-------------------\n{self.global_memory}\n"
         l = f"local_memory\n-------------------\n{self.local_memory}\n"
         t = f"tmp_memory\n-------------------\n{self.tmp_memory}\n"
+        p = f"tmp_pointer_memory\n-------------------\n{self.tmp_pointer_memory}\n"
         c = f"constant_memory\n-------------------\n{self.constant_memory}\n"
-        return f"{g}\n{l}\n{t}\n{c}"
+        return f"{g}\n{l}\n{t}\n{p}\n{c}"
 
 
 compilation_mem = CompilationMemory()
-    
