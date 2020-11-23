@@ -35,5 +35,3 @@ main() {
     a = fibonacci(15);
     write(a);
 }
-
-
