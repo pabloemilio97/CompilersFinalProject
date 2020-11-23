@@ -34,7 +34,7 @@ reserved = {
 
 tokens = [
     'ID', 'AND', 'OR', 'COMMENT', 'SEMICOLON', 'LBRACKET', 'RBRACKET', 'LCURLY', 'RCURLY', 'EQUALS', 'DOUBLEEQUALS', 'NOTEQUALS', 'GREATERTHAN', 'LESSTHAN', 'LPAREN', 'RPAREN', 'COMMA', 'CTECHAR',
-    'PLUS', 'MINUS', 'MULTIPLY', 'DIVIDE', 'CTEI', 'CTEF',
+    'PLUS', 'MINUS', 'MULTIPLY', 'DIVIDE', 'CTEI', 'CTEF', 'GREATERTHANOREQUAL', 'LESSTHANOREQUAL'
 ] + list(reserved.values())
 
 t_SEMICOLON = r';'
@@ -46,7 +46,9 @@ t_DOUBLEEQUALS = r'=='
 t_NOTEQUALS = r'!='
 t_EQUALS = r'='
 t_GREATERTHAN = r'>'
+t_GREATERTHANOREQUAL = r'>='
 t_LESSTHAN = r'<'
+t_LESSTHANOREQUAL = r'<='
 t_LPAREN = r'\('
 t_RPAREN = r'\)'
 t_COMMA = r'\,'
@@ -480,7 +482,9 @@ def p_COMPARE_EXPRESSION_AUX2(p):
     '''COMPARE_EXPRESSION_AUX2 : LESSTHAN
     | GREATERTHAN
     | DOUBLEEQUALS
-    | NOTEQUALS'''
+    | NOTEQUALS
+    | LESSTHANOREQUAL
+    | GREATERTHANOREQUAL'''
     operation = p[1]
     shared.expression_stack[-1].append(operation)
 
@@ -645,8 +649,8 @@ for i in range(len(shared.quadruples)):
 
 vm.run(shared.quadruples_address, symbol_table.func_map)
 
-pprint = pprint.PrettyPrinter(indent=4)
-pprint.pprint(symbol_table.func_map)
-print(compilation_mem)
+# pprint = pprint.PrettyPrinter(indent=4)
+# pprint.pprint(symbol_table.func_map)
+# print(compilation_mem)
 
 # symbol_table.print_func_map()
