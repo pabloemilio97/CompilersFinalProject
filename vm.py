@@ -58,6 +58,8 @@ def execute(quadruple, func_map, quadruples):
         execute_GOSUB(quadruple, func_map)
     elif operation == "RETURN":
         execute_RETURN(quadruple, quadruples)
+    elif operation == "ENDFUNC":
+        execute_ENDFUNC(quadruple)
     # ARRAYS
     elif operation == "ver":
         execute_ver(quadruple)
@@ -145,14 +147,24 @@ def execute_GOSUB(quadruple, func_map):
 def execute_RETURN(quadruple, quadruples):
     memory = shared_vm.call_stack[-1].memory
     return_value = memory.get_value(quadruple[4])
-    shared_vm.call_stack.pop()
     # return global pointer
+    prev_memory = shared_vm.call_stack[-2]
+    prev_pointer = prev_memory.instruction_pointer
+    assign_quad = quadruples[prev_pointer]
+    # check if prev state expects a return value
+    if assign_quad[2] == shared_vm.call_stack[-1].scope:
+        address_to_assign = assign_quad[4]
+        # assign return value to address to assign
+        prev_memory.memory.assign_value(
+            address_to_assign, return_value)
+    else:
+        # If we didnt execute = quadruple, execute current quadruple of past state
+        shared_vm.call_stack[-2].instruction_pointer -= 1
+
+def execute_ENDFUNC(quadruple):
+    shared_vm.call_stack.pop()
     shared_vm.instruction_pointer = shared_vm.call_stack[-1].instruction_pointer
-    assign_quad = quadruples[shared_vm.instruction_pointer]
-    address_to_assign = assign_quad[4]
-    # assign return value to address to assign
-    shared_vm.call_stack[-1].memory.assign_value(
-        address_to_assign, return_value)
+
 
 
 def execute_ver(quadruple):

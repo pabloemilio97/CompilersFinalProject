@@ -140,6 +140,7 @@ def p_FUNCTION_SIGNATURE_AUX(p):
 def p_PARAM(p):
     '''PARAM : PARAM_TYPE_ID_AUX PARAM_AUX
     | empty'''
+    symbol_table.insert_quadruple_reg(shared.scope, quad_generator.quad_pos())
 
 
 def p_PARAM_TYPE_ID_AUX(p):
@@ -147,7 +148,6 @@ def p_PARAM_TYPE_ID_AUX(p):
     param_type = p[1]
     param_name = p[2]
     symbol_table.insert_param(shared.scope, param_name, param_type)
-    symbol_table.insert_quadruple_reg(shared.scope, quad_generator.quad_pos())
 
 
 def p_PARAM_AUX(p):
@@ -597,7 +597,7 @@ def p_MATRIX_ACCESS(p):
 
 
 def p_error(p):
-    print('Syntax error!', p)
+    error.gen_err(f'Syntax error! "{p}"')
 
 
 def t_newline(t):
@@ -609,7 +609,7 @@ t_ignore = ' \t'
 
 
 def t_error(t):
-    print("Illegal character '%s'" % t.value[0])
+    error.gen_err("Illegal character '%s'" % t.value[0])
     t.lexer.skip(1)
 
 

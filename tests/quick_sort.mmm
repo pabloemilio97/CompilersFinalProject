@@ -1,6 +1,6 @@
 program quickSort;
 let int a, arr[101];
-/*
+
 void function swap(int i, int j)
 let int tmp;
 {
@@ -19,13 +19,15 @@ let int i, j, pivot;
 
     for (j = low to high){
         // If current element is smaller than the pivot
-        if (arr[j] < pivot)
+        if (arr[j] <= pivot)
         {
             i = i + 1;    // increment index of smaller element
             swap(i, j);
         }
     }
+    write("a");
     swap(i + 1, high);
+    write("a");
     return i + 1;
 }
 
@@ -39,20 +41,17 @@ let int pi;
         quickSort(pi + 1, high);
     }
 }
-*/
+
 main() {
-    a = 1 + (100 * (5+1));
-    /*
     //initialize array backwards
+    a = 100;
     while (a >= 0) {
-        arr[a] = (1 + 1);
-        //arr[(a - 100) * (0 - 1)] = a;
+        arr[(a - 100) * (0 - 1)] = a;
         a = a - 1;
     }
-    //quickSort(0, 100);
+    quickSort(0, 100);
     //print array
     for (a = 0 to 101) {
         write(arr[a]);
     }
-    */
 }
