@@ -1,6 +1,8 @@
 import shared
 import shared_vm
 import semantic_cube
+import print_file
+import error
 from memory import VirtualMemory
 
 
@@ -58,6 +60,11 @@ def execute(quadruple):
     # ARRAYS
     elif operation == "ver":
         execute_ver(quadruple)
+    # WRITE
+    elif operation == "WRITE":
+        execute_write(quadruple)
+
+    shared_vm.instruction_pointer += 1
 
 
 def execute_arithmetic(quadruple):
@@ -79,15 +86,22 @@ def execute_arithmetic(quadruple):
 
 
 def execute_assign(quadruple):
-    pass
+    memory = shared_vm.call_stack[-1].memory
+    result = memory.get_value(quadruple[2])  # right part of =
+    assign_to_address = quadruple[4]
+    memory.assign_value(assign_to_address, result)
 
 
 def execute_goto(quadruple):
     shared_vm.instruction_pointer = quadruple[4]
+    shared_vm.instruction_pointer -= 1
 
 
 def execute_gotoF(quadruple):
-    pass
+    memory = shared_vm.call_stack[-1].memory
+    if_expression_result = memory.get_value(quadruple[2])
+    if if_expression_result == 0:
+        execute_goto(quadruple)
 
 
 def execute_ERA(quadruple):
@@ -107,4 +121,16 @@ def execute_RETURN(quadruple):
 
 
 def execute_ver(quadruple):
-    pass
+    memory = shared_vm.call_stack[-1].memory
+    access_index = memory.get_value(quadruple[2])
+    lower_bound = memory.get_value(quadruple[3])
+    upper_bound = memory.get_value(quadruple[4])
+    if access_index < lower_bound or access_index > upper_bound:
+        error.gen_runtime_err(
+            'Tratando de accesar o asignar a un elemento fuera de limites')
+
+
+def execute_write(quadruple):
+    memory = shared_vm.call_stack[-1].memory
+    value = memory.get_value(quadruple[4])
+    print_file.print_func(value)
