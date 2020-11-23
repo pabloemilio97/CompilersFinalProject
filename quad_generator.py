@@ -9,6 +9,8 @@ cube = semantic_cube.cube
 func_map = symbol_table.func_map
 
 operations = {
+    '|': -2,
+    '&': -1,
     '>': 0,
     '<': 0,
     '==': 0,
@@ -18,6 +20,7 @@ operations = {
     '+': 1,
     '-': 1,
     '/': 2,
+    '/.': 2,
     '*': 2,
 }
 

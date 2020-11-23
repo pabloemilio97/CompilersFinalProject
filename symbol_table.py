@@ -65,36 +65,6 @@ def var_or_param(scope, var_name):
     elif var_name in func_map[scope]['params']:
         return 'params'
 
-def find_variable_attribute(scope, var_name, attribute):
-    if var_name in func_map[scope]['vars']:
-        return func_map[scope]['vars'][var_name][attribute]
-    elif var_name in func_map[scope]['params']:
-        return func_map[scope]['params'][var_name][attribute]
-    return None
-    
-def normalize_boolean(value):
-    if value is False:
-        return 0
-    elif value is True:
-        return 1
-    else:
-        return value
-
-# def find_register_result(operator, q2, q3):
-#     q2_memory_index = find_variable_attribute(q2, 'memory_index')
-#     q3_memory_index = find_variable_attribute(q3, 'memory_index')
-#     if q2_memory_index is not None:
-#         q2_value = memory.get_value(q2_memory_index)
-#     else:
-#         q2_value = semantic_cube.get_constant_value(q2)
-#     if q3_memory_index is not None:
-#         q3_value = memory.get_value(q3_memory_index)
-#     else:
-#         q3_value = semantic_cube.get_constant_value(q3)
-#     res = shared.operators[operator](q2_value, q3_value)
-#     res = normalize_boolean(res)
-#     return str(res)
-
 def insert_tmp_value(operator, q2, q3, tmp_var_name):
     type_register = semantic_cube.find_return_type(q2, q3, operator)
     insert_tmp_var(shared.scope, tmp_var_name, type_register)

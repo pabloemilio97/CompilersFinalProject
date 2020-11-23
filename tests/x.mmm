@@ -1,0 +1,12 @@
+program x;
+let int a;
+
+int function myFunc(){
+    a = 1;
+    a = 8;
+    return 5;
+}
+main(){
+    a = myFunc();
+    write(a);
+}

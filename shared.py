@@ -23,6 +23,7 @@ operators = {
     '-': operator.sub,
     '*': operator.mul,
     '/': operator.truediv,
+    '/.': operator.floordiv,
     '>': operator.gt,
     '<': operator.lt,
     '>=': operator.ge,

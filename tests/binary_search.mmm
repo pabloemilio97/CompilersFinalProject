@@ -1,0 +1,40 @@
+program binarySearch;
+let float x, arr[10];
+let int i;
+
+int function binarySearch(float target)
+let int start, end, mid, notFound, index;
+{
+    start = 0;
+    end = 9;
+    mid = (end + start) /. 2;
+    index = 0 - 1;
+    notFound = 1;
+
+    while((start <= end) & notFound){
+        mid = (end + start) /. 2;
+        if(arr[mid] == target){
+            notFound = 0;
+            index = mid;
+        }
+        else{
+            if(arr[mid] > target){
+                end = mid - 1;
+            }
+            else{
+                start = mid + 1;
+            }
+        }
+    }
+    return index;
+
+}
+
+main(){
+    for(i = 0 to 10){
+        x = i + 0.5;
+        arr[i] = x;
+        write(arr[i]);
+    }
+    write(binarySearch(2.5));
+}

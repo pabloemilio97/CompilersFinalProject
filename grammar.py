@@ -35,7 +35,7 @@ reserved = {
 
 tokens = [
     'ID', 'AND', 'OR', 'COMMENT', 'SEMICOLON', 'LBRACKET', 'RBRACKET', 'LCURLY', 'RCURLY', 'EQUALS', 'DOUBLEEQUALS', 'NOTEQUALS', 'GREATERTHAN', 'LESSTHAN', 'LPAREN', 'RPAREN', 'COMMA', 'CTECHAR',
-    'PLUS', 'MINUS', 'MULTIPLY', 'DIVIDE', 'CTEI', 'CTEF', 'GREATERTHANOREQUAL', 'LESSTHANOREQUAL'
+    'PLUS', 'MINUS', 'MULTIPLY', 'FLOORDIVIDE', 'DIVIDE', 'CTEI', 'CTEF', 'GREATERTHANOREQUAL', 'LESSTHANOREQUAL',
 ] + list(reserved.values())
 
 t_SEMICOLON = r';'
@@ -57,6 +57,7 @@ t_CTECHAR = r'"[a-zA-Z0-9]?"'
 t_PLUS = r'\+'
 t_MINUS = r'-'
 t_MULTIPLY = r'\*'
+t_FLOORDIVIDE = r'/.'
 t_DIVIDE = r'/'
 t_CTEI = r'[0-9]+'
 t_CTEF = r'[0-9]+\.[0-9]*'
@@ -450,29 +451,44 @@ def p_TO_WORD_AUX(p):
 
 
 def p_EXPRESSION(p):
-    'EXPRESSION : AND_EXPRESSION EXPRESSION_AUX'
+    'EXPRESSION : OR_EXPRESSION EXPRESSION_AUX'
     value = shared.expression_stack[-1]
     p[0] = value[:]
     shared.expression_stack[-1].clear()
 
 def p_EXPRESSION_NO_CLEAR(p):
-    'EXPRESSION_NO_CLEAR : AND_EXPRESSION EXPRESSION_AUX'
+    'EXPRESSION_NO_CLEAR : OR_EXPRESSION EXPRESSION_AUX'
     value = shared.expression_stack[-1]
     p[0] = value[:]
 
-
 def p_EXPRESSION_AUX(p):
-    '''EXPRESSION_AUX : OR EXPRESSION
+    '''EXPRESSION_AUX : EXPRESSION
     | empty'''
 
+def p_OR_EXPRESSION(p):
+    'OR_EXPRESSION : AND_EXPRESSION OR_EXPRESSION_AUX'
+
+def p_OR_EXPRESSION_AUX(p):
+    '''OR_EXPRESSION_AUX : OR_EXPRESSION_AUX2 OR_EXPRESSION
+    | empty'''
+
+def p_OR_EXPRESSION_AUX2(p):
+    'OR_EXPRESSION_AUX2 : OR'
+    operation = p[1]
+    shared.expression_stack[-1].append(operation)
 
 def p_AND_EXPRESSION(p):
     'AND_EXPRESSION : COMPARE_EXPRESSION AND_EXPRESSION_AUX'
 
 
 def p_AND_EXPRESSION_AUX(p):
-    '''AND_EXPRESSION_AUX : AND AND_EXPRESSION
+    '''AND_EXPRESSION_AUX : AND_EXPRESSION_AUX2 AND_EXPRESSION
     | empty'''
+
+def p_AND_EXPRESSION_AUX2(p):
+    'AND_EXPRESSION_AUX2 : AND'
+    operation = p[1]
+    shared.expression_stack[-1].append(operation)
 
 
 def p_COMPARE_EXPRESSION(p):
@@ -522,6 +538,7 @@ def p_TERM_AUX(p):
 
 def p_TERM_AUX2(p):
     '''TERM_AUX2 : MULTIPLY
+    | FLOORDIVIDE
     | DIVIDE'''
     operation = p[1]
     shared.expression_stack[-1].append(operation)
@@ -647,6 +664,7 @@ parser.parse(data)
 # Add last quadruple
 quad_generator.gen_quad('ENDPROG', '', '', '')
 
+print("Compilado correctamente")
 for i in range(len(shared.quadruples)):
     print(shared.quadruples[i], "\t\t", shared.quadruples_address[i])
 
