@@ -12,6 +12,7 @@ import pprint
 from memory import compilation_mem
 import semantic_cube
 import vm
+import shared_vm
 import os
 
 reserved = {
@@ -641,41 +642,62 @@ lexer = lex.lex()
 
 parser = yacc.yacc(debug=False, write_tables=False)
 
-test_files = os.listdir('./tests')
+# test_files = os.listdir('./tests')
 
-print('Choose a file to test dog')
+# print('Choose a file to test dog')
 
-for i, test_file in enumerate(test_files):
-    print(i + 1, test_file)
+# for i, test_file in enumerate(test_files):
+#     print(i + 1, test_file)
 
-data = ""
-aux = int(input())
-file_chosen = test_files[aux - 1]
-f = open(f'./tests/{file_chosen}', "r")
-if f.mode == 'r':
+# data = ""
+# aux = int(input())
+# file_chosen = test_files[aux - 1]
+# f = open(f'./tests/{file_chosen}', "r")
+# if f.mode == 'r':
+#     data = f.read()
+# else:
+#     error.gen_err("Pusiste el numero del archivo mal perro")
+
+
+
+
+def comp_and_run(file_name):
+    f = open(file_name, 'r')
     data = f.read()
-else:
-    error.gen_err("Pusiste el numero del archivo mal perro")
+    lexer.input(data)
+    parser.parse(data)
+    quad_generator.gen_quad('ENDPROG', '', '', '')
+    shared_vm.output.append('Compilords >> Compiled Succesfully')
+    vm.run(shared.quadruples_address, symbol_table.func_map)
+    output_file = open('output.txt', 'w')
+    for item in shared_vm.output:
+        output_file.write(item + '\n')
+    
 
-lexer.input(data)
+        
 
-while True:
-    tok = lexer.token()
-    if not tok:
-        break
-
-# use debug=True for debugging
-parser.parse(data)
+# lexer.input(data)
 
 
-# Add last quadruple
-quad_generator.gen_quad('ENDPROG', '', '', '')
+# while True:
+#     tok = lexer.token()
+#     if not tok:
+#         break
 
-print("Compilado correctamente")
-for i in range(len(shared.quadruples)):
-    print(shared.quadruples[i], "\t\t", shared.quadruples_address[i])
+# # use debug=True for debugging
+# parser.parse(data)
 
-vm.run(shared.quadruples_address, symbol_table.func_map)
+
+
+
+# # Add last quadruple
+# quad_generator.gen_quad('ENDPROG', '', '', '')
+
+# print("Compilado correctamente")
+# for i in range(len(shared.quadruples)):
+#     print(shared.quadruples[i], "\t\t", shared.quadruples_address[i])
+
+# vm.run(shared.quadruples_address, symbol_table.func_map)
 
 # pprint = pprint.PrettyPrinter(indent=4)
 # pprint.pprint(symbol_table.func_map)
