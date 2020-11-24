@@ -596,20 +596,27 @@ def p_VAR_ACCESS(p):
 
 
 def p_ARRAY_ACCESS(p):
-    'ARRAY_ACCESS : ID LBRACKET EXPRESSION RBRACKET'
+    'ARRAY_ACCESS : ARRAY_ACCESS_ID_AUX LBRACKET EXPRESSION RBRACKET'
     array_name = p[1]
     expression = p[3]
     pointer = quad_generator.gen_array_assignment_quads(array_name, expression)
+    shared.expression_stack.pop()
     p[0] = pointer
 
 
+def p_ARRAY_ACCESS_ID_AUX(p):
+    'ARRAY_ACCESS_ID_AUX : ID'
+    shared.expression_stack.append([])
+    p[0] = p[1]
+
 def p_MATRIX_ACCESS(p):
-    'MATRIX_ACCESS : ID LBRACKET EXPRESSION RBRACKET LBRACKET EXPRESSION RBRACKET'
+    'MATRIX_ACCESS : ARRAY_ACCESS_ID_AUX LBRACKET EXPRESSION RBRACKET LBRACKET EXPRESSION RBRACKET'
     matrix_name = p[1]
     expression1 = p[3]
     expression2 = p[6]
     pointer = quad_generator.gen_matrix_assignment_quads(
         matrix_name, expression1, expression2)
+    shared.expression_stack.pop()
     p[0] = pointer
 
 

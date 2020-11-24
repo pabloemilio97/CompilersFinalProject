@@ -8,6 +8,7 @@ def err(msg, var):
 
 def gen_err(msg):
     print(msg)
+    raise Exception
     sys.exit()
 
 

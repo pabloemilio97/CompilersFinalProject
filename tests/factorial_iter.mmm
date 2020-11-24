@@ -1,0 +1,13 @@
+program factorialIter;
+let int i, mem[101];
+
+main(){
+    mem[0] = 0;
+    mem[mem[mem[0]] + 1] = 1 + mem[mem[mem[0]]]; // test accessing nested arrays
+    for(i = 2 to 101){
+        mem[i] = mem[i - 1] * i;
+    }
+    for(i = 0 to 101){
+        write(mem[i]);
+    }
+}

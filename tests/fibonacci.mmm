@@ -1,6 +1,5 @@
 program fibonacci;
 let int a;
-let int fib;
 let int memo[101];
 
 int function fibonacci(int x)
@@ -12,14 +11,13 @@ int function fibonacci(int x)
 }
 
 main() {
-    fib = 100;
-    for (a = 0 to fib + 1) {
+    for (a = 0 to 101) {
         memo[a] = 0 - 1;
     }
     memo[0] = 0;
     memo[1] = 1;
-    a = fibonacci(fib);
-    for (a = 0 to fib) {
+    a = fibonacci(100);
+    for (a = 0 to 101) {
         write(memo[a]);
     }
 }
