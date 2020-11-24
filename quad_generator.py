@@ -2,8 +2,8 @@ import semantic_cube
 import symbol_table
 import shared
 import error
-from shared import quadruples, quadruples_address, operands_stack, operations_stack, jump_stack, jump_operations, numerics, param_nums_stack
-from memory import compilation_mem
+import shared
+import memory
 
 cube = semantic_cube.cube
 func_map = symbol_table.func_map
@@ -29,34 +29,34 @@ def create_tmp_from_operation(operator, q2, q3):
     Return curr_register and add 1 to it.
     We usually have to add 1 each time we consult curr_register.
     """
-    old_value = int(numerics["curr_register"])
+    old_value = int(shared.numerics["curr_register"])
     symbol_table.insert_tmp_value(operator, q2, q3, f't{old_value}')
-    numerics["curr_register"] = str(old_value + 1)
+    shared.numerics["curr_register"] = str(old_value + 1)
     return f"t{old_value}"
 
 def create_tmp_pointer(base_dir):
     """
     Create tmp pointer for array access in memory.
     """
-    pointed_type = compilation_mem.get_address_type(base_dir)
-    old_value = int(numerics["curr_register"])
+    pointed_type = memory.compilation_mem.get_address_type(base_dir)
+    old_value = int(shared.numerics["curr_register"])
     symbol_table.insert_tmp_pointer(f't{old_value}', pointed_type)
-    numerics["curr_register"] = str(old_value + 1)
+    shared.numerics["curr_register"] = str(old_value + 1)
     return f"t{old_value}"
 
 def get_expression_result(expression):
     """
-    Generate arithemtic quadruples and return result.
+    Generate arithemtic shared.quadruples and return result.
     """
     if len(expression) == 1:
         expression_result = expression[0]
     else:
         gen_arithmetic_quadruples(expression)
-        expression_result = quadruples[-1][-1]
+        expression_result = shared.quadruples[-1][-1]
     return expression_result
 
 def quad_pos():
-    return len(quadruples)
+    return len(shared.quadruples)
 
 def gen_assign_quadruples(expression, assign_to):
     expression_result = get_expression_result(expression)
@@ -73,12 +73,12 @@ def gen_if_quadruples(expression):
 
 def gen_else_quadruples():
     # The quadruple number to which the if's gotoF will go to
-    if_jump_to = int(jump_stack.pop())
+    if_jump_to = int(shared.jump_stack.pop())
     gen_quad('goto', '', '', '')
     update_quadruples(if_jump_to)
 
 def _gen_endcondition_quadruples():
-    jump_to = int(jump_stack.pop())
+    jump_to = int(shared.jump_stack.pop())
     update_quadruples(jump_to)
 
 def gen_endelse_quadruples():
@@ -93,8 +93,8 @@ def gen_while_quadruples(expression):
 
 
 def _gen_endloop_quadruples():
-    jump_to_gotoF = int(jump_stack.pop())
-    jump_to_goto = jump_stack.pop()
+    jump_to_gotoF = int(shared.jump_stack.pop())
+    jump_to_goto = shared.jump_stack.pop()
     gen_quad('goto', '', '', jump_to_goto, False)
     update_quadruples(jump_to_gotoF)
 
@@ -116,14 +116,14 @@ def gen_for_quadruples(variable, expression):
     expression_result = get_expression_result(expression)
     
     gen_quad('<', variable, expression_result, create_tmp_from_operation('<', variable, expression_result))
-    comparison_result = quadruples[-1][-1]
+    comparison_result = shared.quadruples[-1][-1]
     gen_quad('gotoF', comparison_result, '', '')
 
 
 def gen_endfunc_quadruple():
     gen_quad('ENDFUNC', '', '', '')
-    compilation_mem.local_memory.flush()
-    compilation_mem.tmp_memory.flush()
+    memory.compilation_mem.local_memory.flush()
+    memory.compilation_mem.tmp_memory.flush()
 
 def _gen_generic_quadruples(operation, expression):
     expression_result = get_expression_result(expression)
@@ -146,52 +146,52 @@ def gen_param_quadruples(expression):
             param_name = params[param_num-1]
             error.gen_err(f'Type not valid for param "{param_name}" in function call "{function_name}".')
     
-    param_num = param_nums_stack[-1]
+    param_num = shared.param_nums_stack[-1]
     str_param_num = f'param{str(param_num)}'
     expression_result = get_expression_result(expression)
     is_correct_type(expression_result, param_num)
     gen_quad('PARAM', expression_result, '', str_param_num)
-    param_nums_stack[-1] += 1
+    shared.param_nums_stack[-1] += 1
 
 def gen_function_call_quads(function_name):
     function_type = symbol_table.func_map[function_name]['type']
-    old_value = int(numerics["curr_register"])
+    old_value = int(shared.numerics["curr_register"])
     new_tmp = f't{old_value}'
     symbol_table.insert_tmp_var(shared.scope, new_tmp, function_type)
     gen_quad('=', function_name, '', new_tmp)
-    numerics["curr_register"] = str(old_value + 1)
+    shared.numerics["curr_register"] = str(old_value + 1)
     return new_tmp
     
 def gen_arithmetic_quadruples(expression):
     for value in expression:
         # print(value)
-        # print('operations stack: ', operations_stack)
-        # print('operands stack: ', operands_stack)
+        # print('operations stack: ', shared.operations_stack)
+        # print('operands stack: ', shared.operands_stack)
         # print('\n')
         if value == ')':
-            flush_remaining(operations_stack, operands_stack)
-            operations_stack.pop()
+            flush_remaining(shared.operations_stack, shared.operands_stack)
+            shared.operations_stack.pop()
         elif value in operations: # if its and operation
-            if not top(operations_stack):
-                operations_stack.append(value)
-            elif operations[top(operations_stack)] >= operations[value]: # if previous operation is more important than current one then create quadruple
-                while top(operations_stack) and operations[top(operations_stack)] >= operations[value]: # keep checking current operation with previous elements in stack
-                    second_operand = operands_stack.pop()
-                    first_operand = operands_stack.pop()
-                    operation = operations_stack.pop()
+            if not top(shared.operations_stack):
+                shared.operations_stack.append(value)
+            elif operations[top(shared.operations_stack)] >= operations[value]: # if previous operation is more important than current one then create quadruple
+                while top(shared.operations_stack) and operations[top(shared.operations_stack)] >= operations[value]: # keep checking current operation with previous elements in stack
+                    second_operand = shared.operands_stack.pop()
+                    first_operand = shared.operands_stack.pop()
+                    operation = shared.operations_stack.pop()
                     curr_register = create_tmp_from_operation(operation, first_operand, second_operand)
                     gen_quad(operation, first_operand, second_operand, curr_register)
-                    operands_stack.append(curr_register)
-                operations_stack.append(value)
+                    shared.operands_stack.append(curr_register)
+                shared.operations_stack.append(value)
             else: # previous operation is less important than current one
-                operations_stack.append(value)
+                shared.operations_stack.append(value)
         else: # its an operand
             if value == '(':
-                operations_stack.append(value)
+                shared.operations_stack.append(value)
             else:
-                operands_stack.append(value)
+                shared.operands_stack.append(value)
     # add remaining quads
-    flush_remaining(operations_stack, operands_stack)
+    flush_remaining(shared.operations_stack, shared.operands_stack)
 
 def flush_remaining(operations_stack, operands_stack):
     while top(operations_stack):
@@ -238,7 +238,7 @@ def gen_matrix_assignment_quads(matrix_name, expression1, expression2):
     matrix_start_address = matrix_info['memory_index']
     symbol_table.insert_constant(str(matrix_start_address))
 
-    # generate quadruples for firt dim expression
+    # generate shared.quadruples for firt dim expression
     expression_result1 = get_expression_result(expression1)
 
     # generate first verify
@@ -248,7 +248,7 @@ def gen_matrix_assignment_quads(matrix_name, expression1, expression2):
     tmp_register = create_tmp_from_operation('*', expression_result1, upper_bound2)
     gen_quad('*', expression_result1, upper_bound2, tmp_register)
 
-    # generate second dim expression quadruples
+    # generate second dim expression shared.quadruples
     expression_result2 = get_expression_result(expression2)
 
     # generate second verify
@@ -296,16 +296,16 @@ def gen_address_quad(q1, q2, q3, q4):
             address_values[i] = transform_to_address(address_values[i])
         
     quad = [quad_pos(), q1, address_values[0], address_values[1], address_values[2]]
-    quadruples_address.append(quad)
+    shared.quadruples_address.append(quad)
 
 def update_quadruples(pos):
-    quadruples[pos][-1] = quad_pos()
-    quadruples_address[pos][-1] = quad_pos()
+    shared.quadruples[pos][-1] = quad_pos()
+    shared.quadruples_address[pos][-1] = quad_pos()
 
 def gen_quad(q1, q2, q3, q4, shouldAppendToJump=True):
     gen_address_quad(q1,q2,q3,q4)
     quad = [quad_pos(), q1, q2, q3, q4]
-    if q1 in jump_operations and shouldAppendToJump:
-        jump_stack.append(quad_pos())
-    quadruples.append(quad)
+    if q1 in shared.jump_operations and shouldAppendToJump:
+        shared.jump_stack.append(quad_pos())
+    shared.quadruples.append(quad)
 

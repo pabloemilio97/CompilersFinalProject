@@ -1,5 +1,5 @@
 from error import err, gen_err
-from memory import compilation_mem
+import memory
 import semantic_cube
 import shared
 
@@ -47,7 +47,7 @@ def insert_constant(constant):
     if constant not in func_map['constants']:
         constant_type = semantic_cube.check_type(constant)
         constant_map = {
-            'memory_index': compilation_mem.constant_memory.compile_push(constant_type),
+            'memory_index': memory.compilation_mem.constant_memory.compile_push(constant_type),
             'type': constant_type,
         }
         func_map['constants'][constant] = constant_map
@@ -70,7 +70,7 @@ def insert_tmp_value(operator, q2, q3, tmp_var_name):
     insert_tmp_var(shared.scope, tmp_var_name, type_register)
 
 def insert_tmp_pointer(tmp_var_name, pointed_type):
-    _insert_generic_local_var(shared.scope, compilation_mem.tmp_pointer_memory, tmp_var_name, "int", pointed_type=pointed_type)
+    _insert_generic_local_var(shared.scope, memory.compilation_mem.tmp_pointer_memory, tmp_var_name, "int", pointed_type=pointed_type)
 
 def insert_quadruple_reg(func_name, quadruple_reg):
     if func_name not in func_map:
@@ -109,13 +109,13 @@ def _insert_generic_local_var(func_name, segment, var_name, type=None, dimension
     _insert_var(func_name, segment, var_name, type, dimensions, pointed_type)
 
 def _insert_local_var(func_name, var_name, type=None, dimensions=None):
-    _insert_generic_local_var(func_name, compilation_mem.local_memory, var_name, type, dimensions)
+    _insert_generic_local_var(func_name, memory.compilation_mem.local_memory, var_name, type, dimensions)
 
 def insert_tmp_var(func_name, var_name, type=None):
-    _insert_generic_local_var(func_name, compilation_mem.tmp_memory, var_name, type)
+    _insert_generic_local_var(func_name, memory.compilation_mem.tmp_memory, var_name, type)
 
 def _insert_global_var(var_name, type, dimensions=None):
-    _insert_var("global", compilation_mem.global_memory, var_name, type, dimensions)
+    _insert_var("global", memory.compilation_mem.global_memory, var_name, type, dimensions)
 
 def insert_var(scope, var_name, type=None, dimensions=None):
     if scope == "global":
@@ -128,7 +128,7 @@ def insert_var(scope, var_name, type=None, dimensions=None):
 def insert_param(func_name, param_name, param_type):
     # append param to a function
     func_map[func_name]['params'][param_name] = {
-        'memory_index': compilation_mem.local_memory.compile_push(param_type),
+        'memory_index': memory.compilation_mem.local_memory.compile_push(param_type),
         'type': param_type,
     }
 

@@ -9,7 +9,6 @@ import symbol_table
 import error
 import quad_generator
 import pprint
-from memory import compilation_mem
 import semantic_cube
 import vm
 import shared_vm
@@ -689,7 +688,6 @@ if shared.env == 'local':
 def comp_and_run(file_name):
     f = open(file_name, 'r')
     data = f.read()
-    lexer.input(data)
     parser.parse(data)
     quad_generator.gen_quad('ENDPROG', '', '', '')
     shared_vm.output.append('Compilords >> Compiled Succesfully')
