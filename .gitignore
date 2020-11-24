@@ -1,4 +1,6 @@
 parsetab.py
+mobile_code.ap
+output.txt
 *.out
 **/__pycache__
 **/.vscode

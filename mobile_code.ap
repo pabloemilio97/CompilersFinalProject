@@ -1,8 +1,9 @@
-program programa;
+
+  program programa;
   let int x;
 
   main () {
-      for (x = 0 to 8) {
-          write(x);
-      }
+    for (x = 0 to 20) {
+      write(x);
+    }
   }
