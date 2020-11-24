@@ -17,7 +17,6 @@ def home():
 
 @app.route('/compile', methods=['POST'])
 def compile():
-
     code = request.get_json()
 
     mobile_code_file = open('mobile_code.ap', 'w')

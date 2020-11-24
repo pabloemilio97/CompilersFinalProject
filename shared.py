@@ -1,6 +1,7 @@
 import operator
 from collections import deque
 
+env = 'dev'
 scope = 'global'
 assign_to = ''
 current_declaration_type = ''

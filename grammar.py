@@ -14,6 +14,10 @@ import semantic_cube
 import vm
 import shared_vm
 import os
+import sys
+
+if len(sys.argv) == 2:
+    shared.env = sys.argv[1]
 
 reserved = {
     'program': 'PROGRAM',
@@ -642,21 +646,42 @@ lexer = lex.lex()
 
 parser = yacc.yacc(debug=False, write_tables=False)
 
-# test_files = os.listdir('./tests')
 
-# print('Choose a file to test dog')
+if shared.env == 'local':
+    test_files = os.listdir('./tests')
 
-# for i, test_file in enumerate(test_files):
-#     print(i + 1, test_file)
+    print('Choose a file to test dog')
 
-# data = ""
-# aux = int(input())
-# file_chosen = test_files[aux - 1]
-# f = open(f'./tests/{file_chosen}', "r")
-# if f.mode == 'r':
-#     data = f.read()
-# else:
-#     error.gen_err("Pusiste el numero del archivo mal perro")
+    for i, test_file in enumerate(test_files):
+        print(i + 1, test_file)
+
+    data = ""
+    aux = int(input())
+    file_chosen = test_files[aux - 1]
+    f = open(f'./tests/{file_chosen}', "r")
+    if f.mode == 'r':
+        data = f.read()
+    else:
+        error.gen_err("Pusiste el numero del archivo mal perro")
+    lexer.input(data)
+
+
+    while True:
+        tok = lexer.token()
+        if not tok:
+            break
+
+    # use debug=True for debugging
+    parser.parse(data)
+    # Add last quadruple
+    quad_generator.gen_quad('ENDPROG', '', '', '')
+
+    print("Compilado correctamente")
+    for i in range(len(shared.quadruples)):
+        print(shared.quadruples[i], "\t\t", shared.quadruples_address[i])
+
+    vm.run(shared.quadruples_address, symbol_table.func_map)
+
 
 
 
@@ -676,28 +701,6 @@ def comp_and_run(file_name):
 
         
 
-# lexer.input(data)
-
-
-# while True:
-#     tok = lexer.token()
-#     if not tok:
-#         break
-
-# # use debug=True for debugging
-# parser.parse(data)
-
-
-
-
-# # Add last quadruple
-# quad_generator.gen_quad('ENDPROG', '', '', '')
-
-# print("Compilado correctamente")
-# for i in range(len(shared.quadruples)):
-#     print(shared.quadruples[i], "\t\t", shared.quadruples_address[i])
-
-# vm.run(shared.quadruples_address, symbol_table.func_map)
 
 # pprint = pprint.PrettyPrinter(indent=4)
 # pprint.pprint(symbol_table.func_map)
