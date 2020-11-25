@@ -179,13 +179,13 @@ def same_type(input1, input2, raise_error=True):
     type2 = check_type(input2)
     is_same_type = type1 == type2
     if(raise_error and not is_same_type):
-        error.gen_err(f"Tratando de asignar a {input1} un tipo incorrecto: {type2}")
+        error.gen_err(f'Trying to assign to "{input1}" an incorrect type: "{type2}"')
     return is_same_type
 
 def _find_return_type(type1, type2, operator):
     res = cube[type1][type2][operator]
     if (res == 'invalid'):
-        error.gen_err(f'No se puede hacer operacion de {type1} con {type2}')
+        error.gen_err(f'trying to make operation with type "{type1}" and "{type2}"')
     return res
 
 def find_return_type(input1, input2, operator):
@@ -202,7 +202,7 @@ def _check_pointer_type(pointer):
         return symbol_table.func_map[shared.scope]['vars'][var_name]['pointed_type']
     elif var_name in symbol_table.func_map[shared.scope]['params']:
         return symbol_table.func_map[shared.scope]['params'][var_name]['pointed_type']
-    error.gen_err(f'Apuntador "{pointer}" no encontrada')
+    error.gen_err(f'Pointer "{pointer}" not found')
 
 def check_type(input):
     if len(input) >= 2 and input[0] == '(' and input[-1] == ')':
@@ -222,7 +222,7 @@ def check_type(input):
             float(input)
             return 'float'
         except:
-            error.gen_err(f'No se puede hacer operaciones con input "{input}"')
+            error.gen_err(f'Unable to make operations with "{input}"')
 
 
 def get_constant_value(input, type):

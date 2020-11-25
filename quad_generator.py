@@ -144,7 +144,7 @@ def gen_param_quadruples(expression):
         if not param_type == expression_type:
             params = list(func_map[function_name]['params'].keys())
             param_name = params[param_num-1]
-            error.gen_err(f'Type not valid for param "{param_name}" in function call "{function_name}".')
+            error.gen_err(f'Type not valid for param "{param_name}" in function call "{function_name}"')
     
     param_num = shared.param_nums_stack[-1]
     str_param_num = f'param{str(param_num)}'
