@@ -1,6 +1,6 @@
 # Whale Lang 🐋🐋🐋
 
-### Whales
+### Whale User Manual
 
 - [Program structure](#program-structure)
 - [Data Types](#data-types)
@@ -26,6 +26,11 @@
 - [Comments](#comments)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+## Purpose
+Whales tend to be really cute creatures... just like this programming language!
+Whale is a simple yet powerful imperative programming language that can handle control structures, loops and recursion.
+It also offers arrays and matrices, all from the comfort of your own mobile device.
 
 ## Program structure
 
