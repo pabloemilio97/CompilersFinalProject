@@ -116,13 +116,13 @@ def execute_ERA(quadruple, func_map):
     func_memory = VirtualMemory()
     func_state = State(func_name, func_return_type,
                        func_memory, start_func_reg)
-    shared_vm.preparing_state = func_state
+    shared_vm.preparing_state_stack.append(func_state)
 
 
 def execute_PARAM(quadruple, func_map):
     param_value = shared_vm.call_stack[-1].memory.get_value(quadruple[2])
-    scope = shared_vm.preparing_state.scope
-    memory = shared_vm.preparing_state.memory
+    scope = shared_vm.preparing_state_stack[-1].scope
+    memory = shared_vm.preparing_state_stack[-1].memory
     param_index = int(quadruple[4][-1]) - 1
     param_memory_index = list(func_map[scope]['params'].values())[
         param_index]['memory_index']
@@ -137,13 +137,14 @@ def execute_GOSUB(quadruple, func_map):
     # Compensate always adding one
     shared_vm.instruction_pointer = func_instruction_pointer - 1
 
+
+    state = shared_vm.preparing_state_stack.pop()
+
     # Append copy of preparing state
-    shared_vm.call_stack.append(shared_vm.preparing_state)
+    shared_vm.call_stack.append(state)
 
     if(len(shared_vm.call_stack) > 1000):
         error.gen_runtime_err("Maximum call stack of 1000 exceeded")
-
-    shared_vm.preparing_state = None
 
     # Make top of call stack pointer = to global pointer
     shared_vm.call_stack[-1].instruction_pointer = shared_vm.instruction_pointer

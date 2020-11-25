@@ -1,19 +1,19 @@
-program programa;
+program test;
 let int arr[10], x;
 
-
-int multiplyNums(int x, int y) {
+int function multiplyNums(int x, int y)
+{
     return x * y;
 }
 
-  int function sumNums(int x, int y) {
-      return x + y;
-  }
+int function sumNums(int x, int y)
+{
+    return x + y;
+}
 
-  main () {
-      write("a");
-      for (x = 0 to 10) {
-          arr[x] = sumNums(multiplyNums(x, x), multiplyNums(x, x));
-          write(arr[x]);
-      }
-  }
+main() {
+    for (x = 0 to 10) {
+        arr[x] = sumNums(multiplyNums(x, x), multiplyNums(x, x));
+        write(arr[x]);
+    }
+}

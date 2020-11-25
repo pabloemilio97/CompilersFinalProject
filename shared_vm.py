@@ -1,4 +1,4 @@
 instruction_pointer = 0
 call_stack = []
-preparing_state = None
+preparing_state_stack = []
 output = []

@@ -153,6 +153,8 @@ def p_PARAM_TYPE_ID_AUX(p):
     'PARAM_TYPE_ID_AUX : TYPE ID'
     param_type = p[1]
     param_name = p[2]
+    if param_name in symbol_table.func_map['global']['vars']:
+        error.gen_err(f'param name already declared globally "{param_name}"')
     symbol_table.insert_param(shared.scope, param_name, param_type)
 
 

@@ -26,7 +26,7 @@ def clean_all():
     shared.jump_stack = []
     shared_vm.instruction_pointer = 0
     shared_vm.call_stack = []
-    shared_vm.preparing_state = None
+    shared_vm.preparing_state_stack = []
     shared_vm.output = []
 
 def print_all():
@@ -44,7 +44,7 @@ def print_all():
     print(shared.jump_stack)
     print(shared_vm.instruction_pointer)
     print(shared_vm.call_stack)
-    print(shared_vm.preparing_state)
+    print(shared_vm.preparing_state_stack)
     print(shared_vm.output)
 
 
