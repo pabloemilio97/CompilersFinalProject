@@ -165,7 +165,7 @@ class VirtualMemory:
             value = segment.get_value(index)
             if value is not None:
                 return value
-        error.gen_runtime_err(f'Variable at mempory address "{index}" has not been assigned')
+        error.gen_runtime_err(f'Variable at memory address "{index}" has not been assigned')
         return None
 
     def assign_value(self, address, value):
