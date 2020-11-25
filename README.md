@@ -1,4 +1,4 @@
-# Compilord Language 🐋🐋🐋
+# Whale Lang 🐋🐋🐋
 
 ### Compilords
 
@@ -15,10 +15,9 @@
 - [Control Statements](#control-statements)
   - [Condition Statement](#condition-statement)
   - [Loop Statement](#loop-statement)
-- [Dimensionated variables](#dimensionated-variables)
+- [Dimensioned variables](#dimensioned-variables)
 - [Expressions](#expressions)
   - [Arithmetic Operators](#arithmetic-operators)
-  - [Logical Operators](#logical-operators)
   - [Relational Operators](#relational-operators)
   - [Assignment Operatos](#assignment-operatos)
 - [Special Functions](#special-functions)
@@ -48,7 +47,7 @@ Compilord language allows for the following primitive types:
 - Float: positive or negative numbers that can contain decimals.
   - Ex: -1.5, 0, 1.5, 2.0, 3.75.
 - Char: stores the value of a char
-  - Ex.: "#", "a", "b", "c"
+  - Ex.: "a", "b", "c"
 
 The language follows arithmetic logic: [Logical Arithmetic](#logical-arithmetic)
 
@@ -58,7 +57,7 @@ The language follows arithmetic logic: [Logical Arithmetic](#logical-arithmetic)
 | --------- | --------------------------------- | ------------------- |
 | Integer   | Numeric value                     | 0, 1, 2, ...        |
 | Float     | Numeric value with decimal points | 0, 1, 2.0, 3.5, ... |
-| Char      | Single char with double quotes    | "a", "b", "#"       |
+| Char      | Single char with double quotes    | "a", "b", "C"       |
 
 ## Scopes
 
@@ -70,7 +69,7 @@ The Compilord language allows for both global variables and function-local varia
 
 Global variables like this:
 
-_let data_type_ = _var_name_;
+_let data_type_;
 
     data_type {
       int
@@ -80,9 +79,28 @@ _let data_type_ = _var_name_;
 
 You can also declare multiple variables like this:
 
-_let data_type_ = _var_name, var_name, var_name_;
+_let data_type_ _var_name, var_name, var_name_;
+
+Global variables can't have the same name as a local or another global variable
+
+### Assignment
+
+You can assign values to vars like this
+
+_var_name_ = _expression_
+
+        x = 10  20;
 
 ### Functions
+
+You can declare Local Variables in functions like this:
+
+        int function myFunc()
+        let int x;
+        let int y;
+        {
+
+        }
 
 Functions can be defined like this:
 
@@ -90,7 +108,14 @@ _return_type_ _function_ _func_name_ (_param1_, _param2_) {
 _statements_;
 }
 
-Functions can return any primitive data type or void.
+        int sumNums(int x, int y)
+        {
+            return x + y;
+        }
+
+Functions can return any primitive data type or void
+
+Functions only receive primitive values, not arrays
 
 ## Statements
 
@@ -100,7 +125,15 @@ You can call functions like this:
 
 _func_name_(_expressions_);
 
+You can use non void functions as expressions like this:
+
+       x = _func_name_(10) + 10;
+
+However you cannot use void functions as expressions
+
 ## Control Statements
+
+This languague take a binary approach to conditions, if the value is not 1 then it's false
 
 ### Condition Statement
 
@@ -130,7 +163,11 @@ _statements_;
       write(x);
     }
 
-## Dimensionated variables
+## Dimensioned variables
+
+Arrays and matrices start from 0
+
+        arr[10]; # this goes from 0 to 9
 
 Arrays can be declared like this:
 
@@ -166,15 +203,9 @@ You can access a matrix value like this
   | Substraction   | -     |
   | Multiplication | \*    |
   | Division       | /     |
-
-### Logical Operators
-
-- Binary operators
-
-  | Operation | Token |
-  | --------- | ----- | --- |
-  | And       | &     |
-  | Or        |       |     |
+  | Floor Division | /.    |
+  | &              | &     |
+  | |              | |     |
 
 - Unary operators
 
@@ -195,7 +226,7 @@ You can access a matrix value like this
   | Equal To           | ==    |
   | Not equal          | !=    |
 
-### Assignment Operatos
+### Assignment Operators
 
 - Binary Operator
 
