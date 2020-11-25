@@ -139,6 +139,10 @@ def execute_GOSUB(quadruple, func_map):
 
     # Append copy of preparing state
     shared_vm.call_stack.append(shared_vm.preparing_state)
+
+    if(len(shared_vm.call_stack) > 1000):
+        error.gen_runtime_err("Maximum call stack of 1000 exceeded")
+
     shared_vm.preparing_state = None
 
     # Make top of call stack pointer = to global pointer
