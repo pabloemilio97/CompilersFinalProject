@@ -34,14 +34,14 @@ def find_variable_or_param_scope(var_name):
         return "global"
     elif var_name in func_map[shared.scope]["vars"] or func_map[shared.scope]["params"]:
         return shared.scope
-    gen_err(f"Could not find "{var_name}" in  global or local scope")
+    gen_err(f'Could not find "{var_name}" in  global or local scope')
 
 def find_variable_scope(var_name):
     if var_name in func_map["global"]["vars"]:
         return "global"
     elif var_name in func_map[shared.scope]["vars"]:
         return shared.scope
-    gen_err(f"Could not find "{var_name}" in  global or local scope")
+    gen_err(f'Could not find "{var_name}" in  global or local scope')
 
 def insert_constant(constant):
     if constant not in func_map['constants']:

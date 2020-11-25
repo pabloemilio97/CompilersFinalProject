@@ -70,7 +70,7 @@ class Segment:
             return "float"
         elif bounds.CHAR_MIN <= address <= bounds.CHAR_MAX:
             return "char"
-        error.gen_err(f"Memory address "{address}" out of bounds.")
+        error.gen_err(f'Memory address "{address}" out of bounds.')
 
     def compile_push(self, type, dimensions=None):
         """
@@ -165,7 +165,7 @@ class VirtualMemory:
             value = segment.get_value(index)
             if value is not None:
                 return value
-        error.gen_err(f"Memory address "{index}" not found")
+        error.gen_err(f'Memory address "{index}" not found')
         return None
 
     def assign_value(self, address, value):
@@ -204,7 +204,7 @@ class CompilationMemory:
                 return "float"
             elif bounds.CHAR_MIN <= address <= bounds.CHAR_MAX:
                 return "char"
-        error.gen_err(f"Dirección de memoria {address} fuera de rango.")
+        error.gen_err(f'Memory address "{address}" out of bounds')
 
     # For debugging purposes
     def __str__(self):
