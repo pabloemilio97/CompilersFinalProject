@@ -57,16 +57,20 @@ def home():
 
 @app.route('/compile', methods=['POST'])
 def compile():
+
     code = request.get_json()
 
-    # clean everything before compiling again
-    print_all()
 
     mobile_code_file = open('mobile_code.ap', 'w')
     mobile_code_file.write(code)
     mobile_code_file.close()
 
-    grammar.comp_and_run('mobile_code.ap')
+    try:
+        grammar.comp_and_run('mobile_code.ap')
+    except ValueError as error:
+        pass
+
     output = shared_vm.output
+    # clean everything before compiling again
     clean_all()
     return jsonify(output)
