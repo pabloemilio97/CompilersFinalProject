@@ -1,9 +1,13 @@
 
   program programa;
+  let int x[10][10], i, j;
   let int x;
 
   main () {
-    for (x = 0 to 20) {
-      write(x);
-    }
+      for (i = 0 to 10) {
+          for (j = 0 to 10) {
+              x[i][j] = j;
+          }
+      }
+      
   }

@@ -175,7 +175,7 @@ def execute_ver(quadruple):
     upper_bound = memory.get_value(quadruple[4])
     if access_index < lower_bound or access_index > upper_bound:
         error.gen_runtime_err(
-            'Tratando de accesar o asignar a un elemento fuera de limites')
+            'Index out of range')
 
 
 def execute_write(quadruple):

@@ -34,14 +34,14 @@ def find_variable_or_param_scope(var_name):
         return "global"
     elif var_name in func_map[shared.scope]["vars"] or func_map[shared.scope]["params"]:
         return shared.scope
-    gen_err(f"No se encontró variable o parámetro '{var_name}' en scope global o local")
+    gen_err(f"Could not find "{var_name}" in  global or local scope")
 
 def find_variable_scope(var_name):
     if var_name in func_map["global"]["vars"]:
         return "global"
     elif var_name in func_map[shared.scope]["vars"]:
         return shared.scope
-    gen_err(f"No se encontró variable {var_name} en scope global o local")
+    gen_err(f"Could not find "{var_name}" in  global or local scope")
 
 def insert_constant(constant):
     if constant not in func_map['constants']:
@@ -74,7 +74,7 @@ def insert_tmp_pointer(tmp_var_name, pointed_type):
 
 def insert_quadruple_reg(func_name, quadruple_reg):
     if func_name not in func_map:
-        gen_err(f'Tratando de agregar # de cuadruplo a funcion que no existe "{func_name}"')
+        gen_err(f'Trying to add quadruple register to a function that does not exist "{func_name}"')
     else:
         func_map[func_name]['quadruple_reg'] = quadruple_reg
 

@@ -16,7 +16,8 @@ import os
 import sys
 
 if len(sys.argv) == 2:
-    shared.env = sys.argv[1]
+    if sys.argv[1] == 'local':
+        shared.env = sys.argv[1]
 
 reserved = {
     'program': 'PROGRAM',
@@ -295,7 +296,7 @@ def p_FUNCTION_CALL_ID_AUX(p):
     shared.function_call_names_stack.append(function_name)
     if function_name not in symbol_table.func_map:
         error.gen_err(
-            f'Haciendo llamada a funcion que no existe "{function_name}"')
+            f'Trying to call function that does not exist "{function_name}"')
     else:
         # quadruple ERA with func name, this symbol table should contain the memory needed for the func
         quad_generator.gen_quad('ERA', '', '', function_name)
@@ -355,7 +356,7 @@ def p_ID_ASSIGNMENT(p):
     shared.assign_to = ''
     var_name = p[1]
     if var_name not in symbol_table.func_map[shared.scope]['vars'] and var_name not in symbol_table.func_map['global']['vars']:
-        error.gen_err(f'Asignando valor a variable "{var_name}" que no existe')
+        error.gen_err(f'Trying to assign value to variable "{var_name}" that does not exist')
     shared.assign_to = var_name
 
 
@@ -573,7 +574,7 @@ def p_FUNCTION_CALL_EXPRESSION(p):
     '''FUNCTION_CALL_EXPRESSION : FUNCTION_CALL'''
     function_name = p[1]
     if symbol_table.func_map[function_name]["type"] == "void":
-        error.gen_err(f"Función {function_name} no tiene valor de retorno")
+        error.gen_err(f"Function {function_name} does not have a return value")
     new_tmp = quad_generator.gen_function_call_quads(function_name)
     p[0] = new_tmp
 
@@ -594,7 +595,7 @@ def p_VAR_ACCESS(p):
     var_name = p[1]
     if var_name not in current_func_map_vars and var_name not in symbol_table.func_map[shared.scope]['params'] and var_name not in symbol_table.func_map['global']['vars']:
         error.gen_err(
-            f'Tratando de asignar variable "{var_name}" que no existe')
+            f'Trying to access variable "{var_name}" that does not exist')
     else:
         p[0] = var_name
 
