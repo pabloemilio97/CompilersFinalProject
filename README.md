@@ -1,6 +1,6 @@
 # Whale Lang 🐋🐋🐋
 
-### Compilords
+### Whales
 
 - [Program structure](#program-structure)
 - [Data Types](#data-types)
@@ -29,25 +29,49 @@
 
 ## Program structure
 
-A Compilord program starts with all the name of the program, followed by all the
-declaration of the global variables, declaration of the functions and the main function
+A Whale program starts with the name of the program, followed by the
+declaration of the global variables, functions and finally the main function.
 
-1. Global Variables Declarations
-2. Functions
-3. Main Function
+1. Declaration of program
+2. Global Variables Declarations
+3. Functions
+4. Main Function
+
+
+        program myProgram;
+        let float x, arr[10], matrix[5][5];
+        let int i;
+
+        void modifyGlobalFloat(){
+          x = 1.7;
+        }
+
+        int sumTwo(int a)
+        let int two;
+        {
+          two = 2;
+          return a + two;
+        }
+
+        main(){
+          i = sumTwo(5);
+          modifyGlobalFloat();
+        }
+
 
 ## Data Types
 
 ### Primitive types
 
-Compilord language allows for the following primitive types:
+Whale language allows for the following primitive types:
 
-- Integer: positive or negative numbers, without decimals, of unlimited length.
-  - Ex.: -1, 0, 1, 2, 3.
+- Integer: positive numbers without decimals, of unlimited length.
+  - Ex.: 0, 1, 2, 3.
+  - To calculate negative numbers, use an operation! Ex. 5 * (0 - 1) to get -5
 - Float: positive or negative numbers that can contain decimals.
   - Ex: -1.5, 0, 1.5, 2.0, 3.75.
-- Char: stores the value of a char
-  - Ex.: "a", "b", "c"
+- Char: upper case or lower case letters between quotations.
+  - Ex.: "a", "b", "C"
 
 The language follows arithmetic logic: [Logical Arithmetic](#logical-arithmetic)
 
@@ -57,29 +81,25 @@ The language follows arithmetic logic: [Logical Arithmetic](#logical-arithmetic)
 | --------- | --------------------------------- | ------------------- |
 | Integer   | Numeric value                     | 0, 1, 2, ...        |
 | Float     | Numeric value with decimal points | 0, 1, 2.0, 3.5, ... |
-| Char      | Single char with double quotes    | "a", "b", "C"       |
+| Char      | Single char with double quotes    | "a", "b", "C", ...  |
 
 ## Scopes
 
-The Compilord language allows for both global variables and function-local variables
+The Whale language allows for both global variables and function-local variables
 
 ## Global Space Members
 
 ### Global Variables
 
-Global variables like this:
+Global variables can be declared like this:
 
-_let data_type_;
+      let data_type var_name;
 
-    data_type {
-      int
-      float
-      char
-    }
+Where _data_type_ can be _int_, _float_ or _char_;
 
 You can also declare multiple variables like this:
 
-_let data_type_ _var_name, var_name, var_name_;
+      let int var_name, var_name, var_name;
 
 Global variables can't have the same name as a local or another global variable
 
@@ -87,17 +107,17 @@ Global variables can't have the same name as a local or another global variable
 
 You can assign values to vars like this
 
-_var_name_ = _expression_
+_var_name_ = _expression_;
 
-        x = 10  20;
+        x = y[1] * (10 + 20) + myFunc(y[y[1]], myOtherFunc(1));
 
 ### Functions
 
 You can declare Local Variables in functions like this:
 
         int function myFunc()
-        let int x;
-        let int y;
+        let int x, z[1][2];
+        let float y;
         {
 
         }
@@ -110,6 +130,7 @@ _statements_;
 
         int sumNums(int x, int y)
         {
+            . . .
             return x + y;
         }
 
@@ -141,9 +162,26 @@ Condition statements can be defined like this:
 
 if (_condition_) {
 _statements_;
+}
+
+    if (1 & 1) {
+      write("w");
+    }
+
+or
+
+
+if (_condition_) {
+_statements_;
 } else {
 _statements_;
 }
+
+    if (1 & 0) {
+      
+    } else {
+      write(1 + 2);
+    }
 
 ### Loop Statement
 
@@ -152,6 +190,11 @@ While statements can be defined like this
 while (_condition_) {
 _statements_;
 }
+
+    while (x > 0) {
+      x = x - 1;
+      write(x);
+    }
 
 For statements can be defined like this
 
@@ -167,7 +210,7 @@ _statements_;
 
 Arrays and matrices start from 0
 
-        arr[10]; # this goes from 0 to 9
+    arr[10]; # this goes from 0 to 9
 
 Arrays can be declared like this:
 
@@ -204,14 +247,8 @@ You can access a matrix value like this
   | Multiplication | \*    |
   | Division       | /     |
   | Floor Division | /.    |
-  | &              | &     |
-  | |              | |     |
-
-- Unary operators
-
-  | Operation | Token |
-  | --------- | ----- |
-  | Not       | !     |
+  | Binary And     | &     |
+  | Binary Or      | &#124;|
 
 ### Relational Operators
 

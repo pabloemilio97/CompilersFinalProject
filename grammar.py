@@ -690,7 +690,7 @@ def comp_and_run(file_name):
     data = f.read()
     parser.parse(data)
     quad_generator.gen_quad('ENDPROG', '', '', '')
-    shared_vm.output.append('Compilords >> Compiled Succesfully')
+    shared_vm.output.append('Whale >> Compiled Succesfully')
     vm.run(shared.quadruples_address, symbol_table.func_map)
     output_file = open('output.txt', 'w')
     for item in shared_vm.output:
